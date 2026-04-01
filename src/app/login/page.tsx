@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,6 +24,18 @@ export default function LoginPage() {
     setLoading(false);
     if (error) setError(error.message);
     else window.location.href = "/admin";
+  }
+
+  async function handleForgot() {
+    if (!email) { setError("Enter your email first"); return; }
+    setResetting(true);
+    setError(null);
+    const supabase = createClient();
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/confirm`,
+    });
+    setResetting(false);
+    setResetSent(true);
   }
 
   const inputBase = "w-full h-[41px] px-4 rounded-lg bg-canvas text-sm text-fg-primary placeholder:text-fg-muted outline-none";
@@ -55,11 +69,15 @@ export default function LoginPage() {
               style={{ boxShadow: "var(--shadow-default)", zIndex: 1 }}
             >
               <div className="flex flex-col gap-1">
-                <p className="text-base text-fg-primary">Log in</p>
-                <p className="text-sm text-fg-muted leading-5">Enter your credentials to access the dashboard.</p>
+                <p className="text-base text-fg-primary">{resetSent ? "Check your inbox" : "Log in"}</p>
+                <p className="text-sm text-fg-muted leading-5">
+                  {resetSent
+                    ? <>Reset link sent to <span className="text-fg-secondary">{email}</span>. Check your inbox.</>
+                    : "Enter your credentials to access the dashboard."}
+                </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              {!resetSent && <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <input
                   type="email"
                   value={email}
@@ -95,7 +113,24 @@ export default function LoginPage() {
                 >
                   {loading ? "Signing in…" : "Sign in"}
                 </button>
-              </form>
+                <button
+                  type="button"
+                  onClick={handleForgot}
+                  disabled={resetting}
+                  className="text-xs text-fg-muted hover:text-fg-secondary transition-colors duration-150 text-left w-fit cursor-pointer disabled:opacity-40"
+                >
+                  {resetting ? "Sending…" : "Forgot password?"}
+                </button>
+              </form>}
+
+              {resetSent && (
+                <button
+                  onClick={() => { setResetSent(false); setPassword(""); }}
+                  className="text-sm text-fg-primary underline text-left w-fit cursor-pointer"
+                >
+                  Back to log in
+                </button>
+              )}
             </div>
           </div>
         </PageTransition>
