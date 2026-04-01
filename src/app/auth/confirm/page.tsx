@@ -56,14 +56,24 @@ export default function ConfirmPage() {
               className="relative w-full max-w-[480px] bg-surface rounded-2xl p-5 flex flex-col gap-5"
               style={{ boxShadow: "var(--shadow-default)", zIndex: 1 }}
             >
-              <div className="flex flex-col gap-1">
-                <p className="text-base text-fg-primary">{done ? "All set!" : "Set your password"}</p>
-                <p className="text-sm text-fg-muted leading-5">
-                  {done
-                    ? "Redirecting you to the dashboard…"
-                    : "Choose a password to secure your account."}
-                </p>
-              </div>
+              {done ? (
+                <div className="flex flex-col gap-3">
+                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M4 10L8 14L16 6" stroke="var(--color-success)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-base text-fg-primary">All set!</p>
+                    <p className="text-sm text-fg-muted leading-5">Logging you into the dashboard…</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  <p className="text-base text-fg-primary">Set your password</p>
+                  <p className="text-sm text-fg-muted leading-5">Choose a password to secure your account.</p>
+                </div>
+              )}
 
               {!done && (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
