@@ -2,7 +2,7 @@
 
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 
-export async function inviteDesigner(email: string, redirectTo: string) {
+export async function inviteDesigner(email: string, redirectTo: string, role: "admin" | "member" = "member") {
   const supabase = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -15,10 +15,9 @@ export async function inviteDesigner(email: string, redirectTo: string) {
 
   if (error) return { error: error.message };
 
-  // Grant member role so middleware allows /admin access (members see limited view)
   const { error: updateError } = await supabase.auth.admin.updateUserById(
     data.user.id,
-    { app_metadata: { role: "member" } }
+    { app_metadata: { role } }
   );
 
   if (updateError) return { error: updateError.message };

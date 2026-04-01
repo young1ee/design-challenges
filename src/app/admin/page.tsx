@@ -707,6 +707,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteAdmin, setInviteAdmin] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   async function handleInvite() {
@@ -714,7 +715,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     setInviting(true);
     setInviteStatus(null);
     const confirmUrl = `${window.location.origin}/auth/confirm`;
-    const { error } = await inviteDesigner(inviteEmail, confirmUrl);
+    const { error } = await inviteDesigner(inviteEmail, confirmUrl, inviteAdmin ? "admin" : "member");
     setInviting(false);
     if (error) setInviteStatus({ ok: false, msg: error });
     else setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
@@ -768,22 +769,41 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       <FieldGroup label="Name"><Input type="text" value={name} onChange={(e) => setName(e.target.value)} /></FieldGroup>
       <FieldGroup label="Location"><Input type="text" value={location} onChange={(e) => setLocation(e.target.value)} /></FieldGroup>
       <FieldGroup label="Started in Nortal"><MonthYearPicker value={started} onChange={setStarted} /></FieldGroup>
-      <div className="flex flex-col gap-3">
-        <p className="text-sm text-fg-muted">Active</p>
-        <button
-          onClick={() => setActive(!active)}
-          className="relative w-10 h-[22px] rounded-full p-px cursor-pointer outline-none"
-          style={{ background: active ? "var(--color-accent)" : "var(--color-elevated)", transition: "background-color 150ms ease" }}
-        >
-          <div
-            className="w-5 h-5 rounded-full"
-            style={{
-              background: active ? "var(--color-canvas)" : "var(--color-glass-active)",
-              transform: active ? "translateX(18px)" : "translateX(0px)",
-              transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
-            }}
-          />
-        </button>
+      <div className="flex gap-8">
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-fg-muted">Active</p>
+          <button
+            onClick={() => setActive(!active)}
+            className="relative w-10 h-[22px] rounded-full p-px cursor-pointer outline-none"
+            style={{ background: active ? "var(--color-accent)" : "var(--color-elevated)", transition: "background-color 150ms ease" }}
+          >
+            <div
+              className="w-5 h-5 rounded-full"
+              style={{
+                background: active ? "var(--color-canvas)" : "var(--color-glass-active)",
+                transform: active ? "translateX(18px)" : "translateX(0px)",
+                transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+            />
+          </button>
+        </div>
+        {!isSelf && <div className="flex flex-col gap-3">
+          <p className="text-sm text-fg-muted">Admin invite</p>
+          <button
+            onClick={() => setInviteAdmin(!inviteAdmin)}
+            className="relative w-10 h-[22px] rounded-full p-px cursor-pointer outline-none"
+            style={{ background: inviteAdmin ? "var(--color-accent)" : "var(--color-elevated)", transition: "background-color 150ms ease" }}
+          >
+            <div
+              className="w-5 h-5 rounded-full"
+              style={{
+                background: inviteAdmin ? "var(--color-canvas)" : "var(--color-glass-active)",
+                transform: inviteAdmin ? "translateX(18px)" : "translateX(0px)",
+                transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+            />
+          </button>
+        </div>}
       </div>
       {/* Invite — hidden when editing own profile */}
       <div className="border-t border-line" />
