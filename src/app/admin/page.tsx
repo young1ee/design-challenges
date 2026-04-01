@@ -678,6 +678,20 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [changingPw, setChangingPw] = useState(false);
+  const [pwStatus, setPwStatus] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  async function handleChangePassword() {
+    if (newPassword.length < 8) { setPwStatus({ ok: false, msg: "At least 8 characters" }); return; }
+    setChangingPw(true);
+    setPwStatus(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setChangingPw(false);
+    if (error) setPwStatus({ ok: false, msg: error.message });
+    else { setPwStatus({ ok: true, msg: "Password updated" }); setNewPassword(""); }
+  }
 
   async function handleInvite() {
     if (!inviteEmail) return;
@@ -755,7 +769,36 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
         </button>
       </div>
       {/* Invite — hidden when editing own profile */}
-      {!isSelf && <div className="border-t border-line" />}
+      <div className="border-t border-line" />
+
+      {/* Change password — only for own profile */}
+      {isSelf && <div className="flex flex-col gap-2">
+        <p className="text-sm text-fg-muted">Change password</p>
+        <div className="flex gap-2">
+          <Input
+            type="password"
+            placeholder="New password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="flex-1"
+          />
+          <button
+            className={glassBtn}
+            style={glassStyle}
+            onClick={handleChangePassword}
+            disabled={!newPassword || changingPw}
+          >
+            {changingPw ? "Saving…" : "Update"}
+          </button>
+        </div>
+        {pwStatus && (
+          <p className={`text-xs ${pwStatus.ok ? "text-success" : "text-danger"}`}>
+            {pwStatus.msg}
+          </p>
+        )}
+      </div>}
+
+      {/* Invite — hidden when editing own profile */}
       {!isSelf && <div className="flex flex-col gap-2">
         <p className="text-sm text-fg-muted">Send login invite</p>
         <div className="flex gap-2">
