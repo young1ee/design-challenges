@@ -788,7 +788,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
           </button>
         </div>
         {!isSelf && <div className="flex flex-col gap-3">
-          <p className="text-sm text-fg-muted">Admin invite</p>
+          <p className="text-sm text-fg-muted">Admin</p>
           <button
             onClick={() => setInviteAdmin(!inviteAdmin)}
             className="relative w-10 h-[22px] rounded-full p-px cursor-pointer outline-none"
