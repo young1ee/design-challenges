@@ -679,19 +679,6 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
   const [inviting, setInviting] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [changingPw, setChangingPw] = useState(false);
-  const [pwStatus, setPwStatus] = useState<{ ok: boolean; msg: string } | null>(null);
-
-  async function handleChangePassword() {
-    if (newPassword.length < 8) { setPwStatus({ ok: false, msg: "At least 8 characters" }); return; }
-    setChangingPw(true);
-    setPwStatus(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setChangingPw(false);
-    if (error) setPwStatus({ ok: false, msg: error.message });
-    else { setPwStatus({ ok: true, msg: "Password updated" }); setNewPassword(""); }
-  }
 
   async function handleInvite() {
     if (!inviteEmail) return;
@@ -730,8 +717,15 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     const { error: err } = await supabase.from("designers").update({
       name, location: location || null, joined_at: joinedAt, is_active: active, left_at: leftAt, avatar_url: avatarUrl,
     }).eq("id", designer.id);
+    if (err) { setSaving(false); setError(err.message); return; }
+
+    if (isSelf && newPassword) {
+      if (newPassword.length < 8) { setSaving(false); setError("Password must be at least 8 characters"); return; }
+      const { error: pwErr } = await supabase.auth.updateUser({ password: newPassword });
+      if (pwErr) { setSaving(false); setError(pwErr.message); return; }
+    }
+
     setSaving(false);
-    if (err) { setError(err.message); return; }
     onSaved();
     onClose();
   }
@@ -772,31 +766,9 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       <div className="border-t border-line" />
 
       {/* Change password — only for own profile */}
-      {isSelf && <div className="flex flex-col gap-2">
-        <p className="text-sm text-fg-muted">Change password</p>
-        <div className="flex gap-2">
-          <Input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="flex-1"
-          />
-          <button
-            className={glassBtn}
-            style={glassStyle}
-            onClick={handleChangePassword}
-            disabled={!newPassword || changingPw}
-          >
-            {changingPw ? "Saving…" : "Update"}
-          </button>
-        </div>
-        {pwStatus && (
-          <p className={`text-xs ${pwStatus.ok ? "text-success" : "text-danger"}`}>
-            {pwStatus.msg}
-          </p>
-        )}
-      </div>}
+      {isSelf && <FieldGroup label="New password (optional)">
+        <Input type="password" placeholder="Leave blank to keep current" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+      </FieldGroup>}
 
       {/* Invite — hidden when editing own profile */}
       {!isSelf && <div className="flex flex-col gap-2">
