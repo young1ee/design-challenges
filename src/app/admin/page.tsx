@@ -62,6 +62,7 @@ type ActiveModal =
   | { kind: "edit-challenge"; challenge: DbChallenge }
   | { kind: "submit-entry"; challenge: DbChallenge }
   | { kind: "edit-entry"; challenge: DbChallenge; entry: DbEntry }
+  | { kind: "set-prompt"; challenge: DbChallenge }
   | { kind: "new-designer" }
   | { kind: "edit-designer"; designer: DbDesigner }
   | null;
@@ -405,6 +406,36 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
       </button>
       <button className={`${ghostBtn} w-full text-danger hover:text-danger hover:bg-[rgba(248,113,113,0.08)]`} onClick={handleDelete}>
         Delete challenge
+      </button>
+    </ModalShell>
+  );
+}
+
+function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChallenge; onClose: () => void; onSaved: () => void }) {
+  const [prompt, setPrompt] = useState(challenge.prompt ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    const supabase = createClient();
+    const { error: err } = await supabase.from("challenges").update({ prompt }).eq("id", challenge.id);
+    setSaving(false);
+    if (err) { setError(err.message); return; }
+    onSaved();
+    onClose();
+  }
+
+  return (
+    <ModalShell title="Set prompt" onClose={onClose}>
+      <p className="text-sm text-fg-muted">{new Date(challenge.challenge_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
+      <FieldGroup label="Prompt">
+        <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What's the challenge this week?" />
+      </FieldGroup>
+      {error && <p className="text-xs text-danger">{error}</p>}
+      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+        {saving ? "Saving…" : "Save"}
       </button>
     </ModalShell>
   );
@@ -1040,8 +1071,8 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
 
-            <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
-              {(["challenges", "designers", ...(viewingAs ? [] : ["photos"])] as Tab[]).map((tab) => (
+            {!viewingAs && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
+              {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -1053,7 +1084,7 @@ export default function AdminPage() {
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
 
           {/* Challenges tab */}
@@ -1109,6 +1140,14 @@ export default function AdminPage() {
                         >
                           Edit challenge
                         </button>}
+                        {viewingAs && viewingAs.slug === challenge.master_of_ceremony?.slug && (
+                          <button
+                            onClick={() => setModal({ kind: "set-prompt", challenge })}
+                            className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
+                          >
+                            Set prompt
+                          </button>
+                        )}
                       </div>
                       {(() => {
                         const effectiveId = viewingAs?.id ?? myDesignerId;
@@ -1217,6 +1256,9 @@ export default function AdminPage() {
         )}
         {modal?.kind === "edit-entry" && (
           <EditEntryModal entry={modal.entry} onClose={close} onSaved={loadChallenges} />
+        )}
+        {modal?.kind === "set-prompt" && (
+          <SetPromptModal challenge={modal.challenge} onClose={close} onSaved={loadChallenges} />
         )}
         {modal?.kind === "new-designer" && (
           <NewDesignerModal onClose={close} onSaved={loadDesigners} />
