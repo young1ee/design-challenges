@@ -674,6 +674,20 @@ function EditDesignerModal({ designer, onClose, onSaved }: {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  async function handleInvite() {
+    if (!inviteEmail) return;
+    setInviting(true);
+    setInviteStatus(null);
+    const confirmUrl = `${window.location.origin}/auth/confirm`;
+    const { error } = await inviteDesigner(inviteEmail, confirmUrl);
+    setInviting(false);
+    if (error) setInviteStatus({ ok: false, msg: error });
+    else setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -739,6 +753,36 @@ function EditDesignerModal({ designer, onClose, onSaved }: {
           />
         </button>
       </div>
+      {/* Divider */}
+      <div className="border-t border-line" />
+
+      {/* Invite */}
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-fg-muted">Send login invite</p>
+        <div className="flex gap-2">
+          <Input
+            type="email"
+            placeholder="name.lastname@nortal.com"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            className="flex-1"
+          />
+          <button
+            className={glassBtn}
+            style={glassStyle}
+            onClick={handleInvite}
+            disabled={!inviteEmail || inviting}
+          >
+            {inviting ? "Sending…" : "Send invite"}
+          </button>
+        </div>
+        {inviteStatus && (
+          <p className={`text-xs ${inviteStatus.ok ? "text-success" : "text-danger"}`}>
+            {inviteStatus.msg}
+          </p>
+        )}
+      </div>
+
       {error && <p className="text-xs text-danger">{error}</p>}
       <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
