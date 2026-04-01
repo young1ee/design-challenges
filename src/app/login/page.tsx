@@ -117,7 +117,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleForgot}
                   disabled={resetting}
-                  className="text-xs text-fg-muted hover:text-fg-secondary transition-colors duration-150 text-left w-fit cursor-pointer disabled:opacity-40"
+                  className="text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 transition-colors duration-150 text-left w-fit cursor-pointer disabled:opacity-40"
                 >
                   {resetting ? "Sending…" : "Forgot password?"}
                 </button>
