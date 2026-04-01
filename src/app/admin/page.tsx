@@ -65,6 +65,7 @@ type ActiveModal =
   | { kind: "set-prompt"; challenge: DbChallenge }
   | { kind: "new-designer" }
   | { kind: "edit-designer"; designer: DbDesigner }
+  | { kind: "change-password" }
   | null;
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
@@ -411,6 +412,48 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
   );
 }
 
+function ChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  async function handleSave() {
+    if (password !== confirm) { setError("Passwords don't match"); return; }
+    if (password.length < 8) { setError("At least 8 characters"); return; }
+    setSaving(true);
+    setError(null);
+    const supabase = createClient();
+    const { error: err } = await supabase.auth.updateUser({ password });
+    setSaving(false);
+    if (err) { setError(err.message); return; }
+    setDone(true);
+    setTimeout(onClose, 1500);
+  }
+
+  return (
+    <ModalShell title="Change password" onClose={onClose}>
+      {done ? (
+        <p className="text-sm text-success">Password updated.</p>
+      ) : (
+        <>
+          <FieldGroup label="New password">
+            <Input type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </FieldGroup>
+          <FieldGroup label="Confirm password">
+            <Input type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          </FieldGroup>
+          {error && <p className="text-xs text-danger">{error}</p>}
+          <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={!password || !confirm || saving}>
+            {saving ? "Saving…" : "Save"}
+          </button>
+        </>
+      )}
+    </ModalShell>
+  );
+}
+
 function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChallenge; onClose: () => void; onSaved: () => void }) {
   const [prompt, setPrompt] = useState(challenge.prompt ?? "");
   const [saving, setSaving] = useState(false);
@@ -709,8 +752,6 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
-  const [newPassword, setNewPassword] = useState("");
-
   async function handleInvite() {
     if (!inviteEmail) return;
     setInviting(true);
@@ -749,12 +790,6 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       name, location: location || null, joined_at: joinedAt, is_active: active, left_at: leftAt, avatar_url: avatarUrl,
     }).eq("id", designer.id);
     if (err) { setSaving(false); setError(err.message); return; }
-
-    if (isSelf && newPassword) {
-      if (newPassword.length < 8) { setSaving(false); setError("Password must be at least 8 characters"); return; }
-      const { error: pwErr } = await supabase.auth.updateUser({ password: newPassword });
-      if (pwErr) { setSaving(false); setError(pwErr.message); return; }
-    }
 
     setSaving(false);
     onSaved();
@@ -796,10 +831,6 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       {/* Invite — hidden when editing own profile */}
       <div className="border-t border-line" />
 
-      {/* Change password — only for own profile */}
-      {isSelf && <FieldGroup label="New password (optional)">
-        <Input type="password" placeholder="Leave blank to keep current" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-      </FieldGroup>}
 
       {/* Invite — hidden when editing own profile */}
       {!isSelf && <div className="flex flex-col gap-2">
@@ -1073,17 +1104,11 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
-              {myDesignerId && !viewingAs && (() => {
-                const me = designers.find((d) => d.id === myDesignerId);
-                return me ? (
-                  <button
-                    className={ghostBtn}
-                    onClick={() => setModal({ kind: "edit-designer", designer: me })}
-                  >
-                    Edit profile
-                  </button>
-                ) : null;
-              })()}
+              {!viewingAs && (
+                <button className={ghostBtn} onClick={() => setModal({ kind: "change-password" })}>
+                  Change password
+                </button>
+              )}
             </div>
 
             {isAdmin && !viewingAs && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
@@ -1274,6 +1299,9 @@ export default function AdminPage() {
         )}
         {modal?.kind === "set-prompt" && (
           <SetPromptModal challenge={modal.challenge} onClose={close} onSaved={loadChallenges} />
+        )}
+        {modal?.kind === "change-password" && (
+          <ChangePasswordModal onClose={close} />
         )}
         {modal?.kind === "new-designer" && (
           <NewDesignerModal onClose={close} onSaved={loadDesigners} />
