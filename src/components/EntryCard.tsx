@@ -1,0 +1,75 @@
+function ArrowUpRightIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+interface EntryCardProps {
+  title: string;
+  author: string;
+  authorAvatarUrl?: string;
+  thumbnailUrl?: string;
+  prototypeUrl?: string;
+  placement?: "winner" | "2nd" | "3rd";
+}
+
+export default function EntryCard({
+  title,
+  author,
+  authorAvatarUrl,
+  thumbnailUrl,
+  prototypeUrl,
+  placement,
+}: EntryCardProps) {
+  return (
+    <div className="flex flex-col gap-2 rounded-xl w-full">
+      {/* Thumbnail */}
+      <div className="relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden">
+        {thumbnailUrl ? (
+          <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-canvas" />
+        )}
+
+        {/* Placement badge */}
+        {placement && (
+          <div className="absolute top-2 left-2 px-2 py-1 rounded-lg bg-canvas border-[0.5px] border-line">
+            <span className={`text-sm ${placement === "winner" ? "text-success" : "text-fg-secondary"}`}>
+              {placement === "winner" ? "Winner" : placement === "2nd" ? "2nd place" : "3rd place"}
+            </span>
+          </div>
+        )}
+
+        {/* Prototype link */}
+        {prototypeUrl && (
+          <a
+            href={prototypeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-elevated text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97]"
+            style={{ boxShadow: "var(--shadow-btn)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ArrowUpRightIcon />
+          </a>
+        )}
+      </div>
+
+      {/* Meta: title + author side by side */}
+      <div className="flex items-start gap-1 px-2">
+        <p className="flex-1 text-sm text-fg-secondary min-w-0">{title}</p>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
+            {authorAvatarUrl
+              ? <img src={authorAvatarUrl} alt={author} className="w-full h-full object-cover" />
+              : author.slice(0, 2).toUpperCase()
+            }
+          </div>
+          <span className="text-sm text-fg-primary whitespace-nowrap">{author}</span>
+        </div>
+      </div>
+    </div>
+  );
+}

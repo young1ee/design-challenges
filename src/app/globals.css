@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+
+  /* Backgrounds */
+  --color-canvas: #020617;
+  --color-surface: #0e1525;
+  --color-elevated: #1a2738;
+
+  /* Text */
+  --color-fg-primary: #f1f5f9;
+  --color-fg-secondary: #94a3b8;
+  --color-fg-muted: #687991;
+
+  /* Borders — alpha so they blend with any background */
+  --color-line: rgba(180, 188, 208, 0.18);
+
+  /* Brand */
+  --color-accent: #39ff3e;
+  --color-accent-foreground: #001e0b;
+
+  /* Status */
+  --color-success:            #4ade80;
+  --color-success-foreground: #052e16;
+
+  --color-warning:            #fbbf24;
+  --color-warning-foreground: #451a03;
+
+  --color-danger:             #f87171;
+  --color-danger-foreground:  #450a0a;
+
+}
+
+:root {
+  /* Glass overlays — white-on-dark translucent surfaces */
+  --color-glass-subtle:  rgba(255, 255, 255, 0.05);
+  --color-glass-hover:   rgba(255, 255, 255, 0.08);
+  --color-glass-active:  rgba(255, 255, 255, 0.10);
+  --color-glass-faint:   rgba(255, 255, 255, 0.06);
+
+  /* Inset dividers — very faint line used inside cards */
+  --color-line-faint:    rgba(180, 188, 208, 0.04);
+
+  /* Status surface tints */
+  --color-success-tint:  rgba(74, 222, 128, 0.06);
+  --color-success-ring:  rgba(74, 222, 128, 0.20);
+
+  --shadow-default: 0px 2px 4px 0px rgba(2, 6, 23, 0.50),
+    0px 1px 2px -1px rgba(2, 6, 23, 0.60),
+    0px 0px 0px 0.5px rgba(255, 255, 255, 0.18);
+  --shadow-modal: 0px 0px 0px 1px rgba(255, 255, 255, 0.06),
+    0px 8px 12px -6px rgba(2, 6, 23, 0.45),
+    0px 20px 30px -5px rgba(2, 6, 23, 0.70);
+  --shadow-btn: inset 0 0 0 0.5px rgba(255, 255, 255, 0.06),
+    inset 0 0.5px 0 0 rgba(255, 255, 255, 0.12),
+    0 0 0 1px rgba(14, 21, 37, 0.6),
+    0 4px 4px 0 rgba(0, 0, 0, 0.1);
+
+  /* Easing curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+
+@layer base {
+  @keyframes blur-word-reveal {
+    from { opacity: 0; filter: blur(12px); }
+    to   { opacity: 1; filter: blur(0px);  }
+  }
+
+  @keyframes hero-item-reveal {
+    from { opacity: 0; filter: blur(8px); transform: translateY(12px); }
+    to   { opacity: 1; filter: blur(0px); transform: translateY(0);    }
+  }
+
+  @keyframes content-reveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  @keyframes orbit-spin {
+    from { transform: rotateX(62deg) rotate(0deg); }
+    to   { transform: rotateX(62deg) rotate(-360deg); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* See more button — background responds to card (group) hover */
+.btn-see-more {
+  background: var(--color-glass-subtle);
+}
+
+.group:hover .btn-see-more {
+  background: var(--color-glass-hover);
+}
+
+/* Gradient border on prompt card hover */
+.prompt-card {
+  position: relative;
+}
+
+.prompt-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(ellipse at 0% 0%, var(--color-accent) 0%, transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+.prompt-card:hover::before {
+  opacity: 1;
+}
+
+@layer utilities {
+  /* Letter-spacing matching Figma token absolute px values */
+  .text-xs   { letter-spacing: -0.1px;  }
+  .text-sm   { letter-spacing: -0.3px;  }
+  .text-base { letter-spacing: -0.5px;  }
+  .text-lg   { letter-spacing: -0.5px;  }
+  .text-xl   { letter-spacing: -0.5px;  }
+  .text-2xl  { letter-spacing: -0.5px;  }
+  .text-3xl  { letter-spacing: -0.8px;  }
+  .text-4xl  { letter-spacing: -0.8px;  }
+  .text-5xl  { letter-spacing: -1px;    }
+  .text-6xl  { letter-spacing: -1px;    }
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-fg-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+[role="menuitem"]:focus-visible {
+  box-shadow: none;
+}
+
+svg:focus, svg:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
