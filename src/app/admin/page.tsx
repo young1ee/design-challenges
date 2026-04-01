@@ -1103,7 +1103,7 @@ export default function AdminPage() {
                         <div className="flex items-center gap-3">
                           <p className="text-sm text-fg-muted">{formatDate(challenge.challenge_date)}</p>
                           {challenge.status === "open" && (
-                            <span className="text-xs px-2 py-0.5 rounded-full text-accent bg-accent/10">Active</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>
                           )}
                         </div>
                         <p className="text-sm text-fg-primary">{challenge.prompt ?? <span className="text-fg-muted italic">No prompt set</span>}</p>
