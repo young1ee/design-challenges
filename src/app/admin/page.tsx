@@ -6,6 +6,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Nav from "@/components/Nav";
 import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
+import { inviteDesigner } from "@/app/actions/invite";
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
@@ -617,8 +618,16 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
     const { error: err } = await supabase.from("designers").insert({
       name, slug, location: location || null, joined_at: joinedAt, is_active: true, avatar_url: avatarUrl,
     });
+    if (err) { setSaving(false); setError(err.message); return; }
+
+    // Send invite email if email provided
+    if (email) {
+      const confirmUrl = `${window.location.origin}/auth/confirm`;
+      const { error: inviteErr } = await inviteDesigner(email, confirmUrl);
+      if (inviteErr) { setSaving(false); setError(`Designer saved, but invite failed: ${inviteErr}`); return; }
+    }
+
     setSaving(false);
-    if (err) { setError(err.message); return; }
     onSaved();
     onClose();
   }
