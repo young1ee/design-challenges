@@ -1041,7 +1041,7 @@ export default function AdminPage() {
             <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
 
             <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
-              {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
+              {(["challenges", "designers", ...(viewingAs ? [] : ["photos"])] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -1061,9 +1061,9 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between gap-4">
                 <YearDropdown value={selectedYear} onChange={setSelectedYear} />
-                <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
+                {!viewingAs && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
                   New challenge
-                </button>
+                </button>}
               </div>
 
               <div className="flex flex-col gap-4">
@@ -1103,12 +1103,12 @@ export default function AdminPage() {
                             ))}
                           </div>
                         )}
-                        <button
+                        {!viewingAs && <button
                           onClick={() => setModal({ kind: "edit-challenge", challenge })}
                           className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
                         >
                           Edit challenge
-                        </button>
+                        </button>}
                       </div>
                       {(() => {
                         const effectiveId = viewingAs?.id ?? myDesignerId;
@@ -1141,11 +1141,11 @@ export default function AdminPage() {
           {/* Designers tab */}
           {activeTab === "designers" && (
             <>
-              <div className="flex justify-end">
+              {!viewingAs && <div className="flex justify-end">
                 <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-designer" })}>
                   Add designer
                 </button>
-              </div>
+              </div>}
               <div className="flex flex-col gap-4">
                 {loadingDesigners ? (
                   <p className="text-sm text-fg-muted text-center py-8">Loading…</p>
@@ -1176,19 +1176,19 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button
+                        {!viewingAs && <button
                           className={ghostBtn}
                           onClick={() => { setViewingAs(designer); setActiveTab("challenges"); }}
                         >
                           View as
-                        </button>
-                        <button
+                        </button>}
+                        {!viewingAs && <button
                           className={glassBtn}
                           style={glassStyle}
                           onClick={() => setModal({ kind: "edit-designer", designer })}
                         >
                           Edit
-                        </button>
+                        </button>}
                       </div>
                     </div>
                   ))
