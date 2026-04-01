@@ -111,7 +111,7 @@ export default function LoginPage() {
                   className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-glass-subtle)] enabled:hover:bg-[var(--color-glass-hover)] text-sm text-fg-secondary enabled:hover:text-fg-primary transition-[transform,color,background-color] duration-150 enabled:active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   style={{ boxShadow: "var(--shadow-btn)" }}
                 >
-                  {loading ? "Signing in…" : "Sign in"}
+                  {loading ? "Logging in…" : "Log in"}
                 </button>
                 <button
                   type="button"
