@@ -1,0 +1,18 @@
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: '0 6 * * 1,4' # Monday & Thursday 6am UTC
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://szjshgotorcmjqozfwre.supabase.co/rest/v1/seasons?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "Response: $STATUS"
+          [ "$STATUS" = "200" ] && echo "OK" || exit 1
