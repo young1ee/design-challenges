@@ -126,7 +126,7 @@ export default function LoginPage() {
               {resetSent && (
                 <button
                   onClick={() => { setResetSent(false); setPassword(""); }}
-                  className="text-sm text-fg-secondary hover:text-fg-primary transition-colors duration-150 active:scale-[0.97] text-left w-fit cursor-pointer"
+                  className="text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 transition-colors duration-150 text-left w-fit cursor-pointer"
                 >
                   Back to log in
                 </button>
