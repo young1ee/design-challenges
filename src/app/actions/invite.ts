@@ -15,10 +15,10 @@ export async function inviteDesigner(email: string, redirectTo: string) {
 
   if (error) return { error: error.message };
 
-  // Grant admin role in app_metadata so middleware allows /admin access
+  // Grant member role so middleware allows /admin access (members see limited view)
   const { error: updateError } = await supabase.auth.admin.updateUserById(
     data.user.id,
-    { app_metadata: { role: "admin" } }
+    { app_metadata: { role: "member" } }
   );
 
   if (updateError) return { error: updateError.message };

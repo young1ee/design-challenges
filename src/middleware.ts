@@ -28,10 +28,10 @@ export async function middleware(request: NextRequest) {
   // Refresh the session — keeps it alive across requests
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect /admin — only users with app_metadata.role === "admin"
+  // Protect /admin — admins and members only
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    const isAdmin = user?.app_metadata?.role === "admin";
-    if (!isAdmin) {
+    const role = user?.app_metadata?.role;
+    if (role !== "admin" && role !== "member") {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }

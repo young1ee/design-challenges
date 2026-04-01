@@ -972,6 +972,7 @@ export default function AdminPage() {
 
   const [userName, setUserName] = useState("");
   const [myDesignerId, setMyDesignerId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [challenges, setChallenges] = useState<DbChallenge[]>([]);
   const [designers, setDesigners] = useState<DbDesigner[]>([]);
   const [seasons, setSeasons] = useState<DbSeason[]>([]);
@@ -987,6 +988,7 @@ export default function AdminPage() {
       const email = session?.user?.email ?? "";
       const name = email.split("@")[0].split(".")[0].replace(/\b\w/g, (c) => c.toUpperCase());
       setUserName(name);
+      setIsAdmin(session?.user?.app_metadata?.role === "admin");
       // Match to designer by slug (first part of email before @ or .)
       const slug = email.split("@")[0].split(".")[0].toLowerCase();
       const { data } = await supabase.from("designers").select("id").eq("slug", slug).maybeSingle();
@@ -1069,9 +1071,22 @@ export default function AdminPage() {
 
           {/* Greeting row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
+              {myDesignerId && !viewingAs && (() => {
+                const me = designers.find((d) => d.id === myDesignerId);
+                return me ? (
+                  <button
+                    className={ghostBtn}
+                    onClick={() => setModal({ kind: "edit-designer", designer: me })}
+                  >
+                    Edit profile
+                  </button>
+                ) : null;
+              })()}
+            </div>
 
-            {!viewingAs && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
+            {isAdmin && !viewingAs && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
               {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
@@ -1092,7 +1107,7 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between gap-4">
                 <YearDropdown value={selectedYear} onChange={setSelectedYear} />
-                {!viewingAs && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
+                {isAdmin && !viewingAs && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
                   New challenge
                 </button>}
               </div>
@@ -1134,7 +1149,7 @@ export default function AdminPage() {
                             ))}
                           </div>
                         )}
-                        {!viewingAs && <button
+                        {isAdmin && !viewingAs && <button
                           onClick={() => setModal({ kind: "edit-challenge", challenge })}
                           className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
                         >
@@ -1180,7 +1195,7 @@ export default function AdminPage() {
           {/* Designers tab */}
           {activeTab === "designers" && (
             <>
-              {!viewingAs && <div className="flex justify-end">
+              {isAdmin && !viewingAs && <div className="flex justify-end">
                 <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-designer" })}>
                   Add designer
                 </button>
@@ -1215,13 +1230,13 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {!viewingAs && <button
+                        {isAdmin && !viewingAs && <button
                           className={ghostBtn}
                           onClick={() => { setViewingAs(designer); setActiveTab("challenges"); }}
                         >
                           View as
                         </button>}
-                        {!viewingAs && <button
+                        {isAdmin && !viewingAs && <button
                           className={glassBtn}
                           style={glassStyle}
                           onClick={() => setModal({ kind: "edit-designer", designer })}
