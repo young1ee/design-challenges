@@ -656,8 +656,9 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
   );
 }
 
-function EditDesignerModal({ designer, onClose, onSaved }: {
+function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
   designer: DbDesigner;
+  isSelf: boolean;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -753,11 +754,9 @@ function EditDesignerModal({ designer, onClose, onSaved }: {
           />
         </button>
       </div>
-      {/* Divider */}
-      <div className="border-t border-line" />
-
-      {/* Invite */}
-      <div className="flex flex-col gap-2">
+      {/* Invite — hidden when editing own profile */}
+      {!isSelf && <div className="border-t border-line" />}
+      {!isSelf && <div className="flex flex-col gap-2">
         <p className="text-sm text-fg-muted">Send login invite</p>
         <div className="flex gap-2">
           <Input
@@ -781,7 +780,7 @@ function EditDesignerModal({ designer, onClose, onSaved }: {
             {inviteStatus.msg}
           </p>
         )}
-      </div>
+      </div>}
 
       {error && <p className="text-xs text-danger">{error}</p>}
       <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
@@ -1208,7 +1207,7 @@ export default function AdminPage() {
           <NewDesignerModal onClose={close} onSaved={loadDesigners} />
         )}
         {modal?.kind === "edit-designer" && (
-          <EditDesignerModal designer={modal.designer} onClose={close} onSaved={loadDesigners} />
+          <EditDesignerModal designer={modal.designer} isSelf={modal.designer.id === myDesignerId} onClose={close} onSaved={loadDesigners} />
         )}
       </AnimatePresence>
     </div>
