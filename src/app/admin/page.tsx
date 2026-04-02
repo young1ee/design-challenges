@@ -277,6 +277,7 @@ function NewChallengeModal({ designers, seasons, onClose, onSaved }: {
     const mocDesigner = moc ? designers.find((d) => d.id === moc) : null;
     const { error: err } = await supabase.from("challenges").insert({
       challenge_date: dateStr,
+      prompt: "",
       status: "open",
       season_id: season.id,
       master_of_ceremony_id: mocDesigner?.id ?? null,
