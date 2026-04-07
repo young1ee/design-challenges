@@ -1,3 +1,7 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+
 function ArrowUpRightIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -23,12 +27,17 @@ export default function EntryCard({
   prototypeUrl,
   placement,
 }: EntryCardProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="flex flex-col gap-2 rounded-xl w-full">
       {/* Thumbnail */}
-      <div
-        className={`relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden transition-transform duration-200${prototypeUrl ? " group cursor-pointer hover:scale-[1.02]" : ""}`}
+      <motion.div
+        className={`relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden${prototypeUrl ? " group cursor-pointer" : ""}`}
         onClick={prototypeUrl ? () => window.open(prototypeUrl, "_blank", "noopener,noreferrer") : undefined}
+        whileHover={prototypeUrl && !reduceMotion ? { scale: 1.02 } : undefined}
+        whileTap={prototypeUrl && !reduceMotion ? { scale: 0.98 } : undefined}
+        transition={{ scale: { type: "spring", duration: 0.2, bounce: 0 } }}
       >
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
@@ -73,7 +82,7 @@ export default function EntryCard({
             <ArrowUpRightIcon />
           </a>
         )}
-      </div>
+      </motion.div>
 
       {/* Meta: title + author side by side */}
       <div className="flex items-start gap-1 px-2">
