@@ -92,7 +92,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-40 bg-canvas/80 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
