@@ -156,9 +156,18 @@ function ChartTooltip(props: any) {
 // ─── Leaderboard table ────────────────────────────────────────────────────────
 
 function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; simplified?: boolean }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const dataCol = isMobile ? "auto" : "minmax(56px, auto)";
   const cols = simplified
-    ? "fit-content(100%) minmax(0,1fr) auto auto auto"
-    : "fit-content(100%) minmax(0,1fr) auto auto auto auto auto";
+    ? `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol}`
+    : `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol} ${dataCol} ${dataCol}`;
   const headers = simplified ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
 
   return (
@@ -506,7 +515,14 @@ function OldSeasonLayout({
     : 0;
 
   // Simplified leaderboard: # | Designer | Points only
-  const oldCols = "fit-content(100%) minmax(0,1fr) auto";
+  const [isMobileOld, setIsMobileOld] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobileOld(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  const oldCols = `fit-content(100%) minmax(0,1fr) ${isMobileOld ? "auto" : "minmax(56px, auto)"}`;
 
   return (
     <div className="flex flex-col gap-20 w-full max-w-[920px] mx-auto px-4 sm:px-6">

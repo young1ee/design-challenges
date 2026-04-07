@@ -163,9 +163,10 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  const dataCol = isMobile ? "auto" : "minmax(56px, auto)";
   const cols = isMobile
-    ? "fit-content(100%) minmax(0,1fr) auto auto auto"
-    : "fit-content(100%) minmax(0,1fr) auto auto auto auto auto";
+    ? `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol}`
+    : `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol} ${dataCol} ${dataCol}`;
   const headers = isMobile ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
 
   return (
