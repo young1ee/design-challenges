@@ -168,7 +168,7 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
     >
       {/* Header row */}
       <div className="contents">
-        <div className="px-3 py-1.5 flex items-center">
+        <div className="pl-3 pr-0 py-1.5 flex items-center">
           <span className="text-xs text-fg-muted">#</span>
         </div>
         <div className="px-3 py-1.5 flex items-center">
@@ -185,7 +185,7 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
       {data.map((row, i) => (
         <div key={row.name} className="contents">
           <div
-            className="px-3 py-2.5 flex items-center rounded-l-lg"
+            className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg"
             style={{ background: "rgba(180,188,208,0.04)" }}
           >
             <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
