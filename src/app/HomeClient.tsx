@@ -155,16 +155,23 @@ function ChartTooltip(props: any) {
 // ─── Leaderboard table ────────────────────────────────────────────────────────
 
 function Leaderboard({ data }: { data: LeaderboardRow[] }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const cols = isMobile
+    ? "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)"
+    : "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)";
+  const headers = isMobile ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
+
   return (
     <div className="flex flex-col gap-4 w-full">
     <div className="w-full overflow-x-auto">
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)",
-        rowGap: "2px",
-      }}
-    >
+    <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px" }}>
       {/* Header row */}
       <div className="contents">
         <div className="pl-3 pr-0 py-1.5 flex items-center">
@@ -173,7 +180,7 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
         <div className="px-3 py-1.5 flex items-center">
           <span className="text-xs text-fg-muted">Designer</span>
         </div>
-        {["Entries", "1st", "2nd", "3rd", "Points"].map((label) => (
+        {headers.map((label) => (
           <div key={label} className="px-3 py-1.5 flex items-center justify-center">
             <span className="text-xs text-fg-muted">{label}</span>
           </div>
@@ -181,47 +188,53 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
       </div>
 
       {/* Data rows */}
-      {data.map((row, i) => (
-        <div key={row.name} className="contents">
-          <div
-            className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg"
-            style={{ background: "rgba(180,188,208,0.04)" }}
-          >
-            <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
-          </div>
-          <div
-            className="px-3 py-2.5 flex items-center gap-2"
-            style={{ background: "rgba(180,188,208,0.04)" }}
-          >
-            <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-              {row.avatarUrl
-                ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
-                : row.name.slice(0, 2).toUpperCase()
-              }
-            </div>
-            <span className="text-sm text-fg-primary">{row.name}</span>
-          </div>
-          {[row.entries, row.first, row.second, row.third].map((val, j) => (
+      {data.map((row, i) => {
+        const cells = isMobile ? [row.entries, row.first] : [row.entries, row.first, row.second, row.third];
+        return (
+          <div key={row.name} className="contents">
             <div
-              key={j}
-              className="px-3 py-2.5 flex items-center justify-center"
+              className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg"
               style={{ background: "rgba(180,188,208,0.04)" }}
             >
-              <span className="text-sm text-fg-secondary tabular-nums">{val}</span>
+              <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
             </div>
-          ))}
-          <div
-            className="px-3 py-2.5 flex items-center justify-center rounded-r-lg"
-            style={{ background: "rgba(180,188,208,0.04)" }}
-          >
-            <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
+            <div
+              className="px-3 py-2.5 flex items-center gap-2"
+              style={{ background: "rgba(180,188,208,0.04)" }}
+            >
+              <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
+                {row.avatarUrl
+                  ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
+                  : row.name.slice(0, 2).toUpperCase()
+                }
+              </div>
+              <span className="text-sm text-fg-primary">{row.name}</span>
+            </div>
+            {cells.map((val, j) => (
+              <div
+                key={j}
+                className="px-3 py-2.5 flex items-center justify-center"
+                style={{ background: "rgba(180,188,208,0.04)" }}
+              >
+                <span className="text-sm text-fg-secondary tabular-nums">{val}</span>
+              </div>
+            ))}
+            <div
+              className="px-3 py-2.5 flex items-center justify-center rounded-r-lg"
+              style={{ background: "rgba(180,188,208,0.04)" }}
+            >
+              <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
     </div>
     <p className="text-xs text-fg-muted text-center w-full">
-      1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
+      {isMobile
+        ? <>1st · 10pts <span className="mx-1" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
+        : <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
+      }
     </p>
     </div>
   );
