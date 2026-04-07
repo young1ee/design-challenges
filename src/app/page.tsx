@@ -42,7 +42,6 @@ export default async function HomePage() {
   );
 
   const mappedChallenges = previousChallenges
-    .filter((c) => c.id !== mostRecentChallenge?.id)
     .map((c) => {
       const date = new Date(c.challenge_date).toLocaleDateString("en-US", {
       month: "long",
