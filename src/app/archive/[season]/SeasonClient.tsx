@@ -164,7 +164,7 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const dataCol = isMobile ? "auto" : "minmax(80px, auto)";
+  const dataCol = isMobile ? "auto" : "minmax(72px, auto)";
   const cols = simplified
     ? `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol}`
     : `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol} ${dataCol} ${dataCol}`;
@@ -522,7 +522,7 @@ function OldSeasonLayout({
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-  const oldCols = `fit-content(100%) minmax(0,1fr) ${isMobileOld ? "auto" : "minmax(80px, auto)"}`;
+  const oldCols = `fit-content(100%) minmax(0,1fr) ${isMobileOld ? "auto" : "minmax(72px, auto)"}`;
 
   return (
     <div className="flex flex-col gap-20 w-full max-w-[920px] mx-auto px-4 sm:px-6">

@@ -163,7 +163,7 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const dataCol = isMobile ? "auto" : "minmax(80px, auto)";
+  const dataCol = isMobile ? "auto" : "minmax(72px, auto)";
   const cols = isMobile
     ? `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol}`
     : `fit-content(100%) minmax(0,1fr) ${dataCol} ${dataCol} ${dataCol} ${dataCol} ${dataCol}`;
