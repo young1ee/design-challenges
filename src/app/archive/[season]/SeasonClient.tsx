@@ -211,7 +211,7 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
       </div>
       <p className="text-xs text-fg-muted text-center">
         {simplified ? (
-          <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 5pts</>
+          <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
         ) : (
           <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
         )}
@@ -597,8 +597,11 @@ function OldSeasonLayout({
                       <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                     </div>
                     <div className="px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
-                      <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0">
-                        {row.name.slice(0, 2).toUpperCase()}
+                      <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
+                        {row.avatarUrl
+                          ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
+                          : row.name.slice(0, 2).toUpperCase()
+                        }
                       </div>
                       <span className="text-sm text-fg-primary">{row.name}</span>
                     </div>
@@ -610,7 +613,7 @@ function OldSeasonLayout({
               </div>
             </div>
             <p className="text-xs text-fg-muted text-center">
-              1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 8pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 5pts
+              1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
             </p>
           </div>
         )}
