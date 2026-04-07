@@ -101,10 +101,10 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-end sm:items-start justify-center sm:py-[100px] sm:px-6 pointer-events-none" onClick={onClose}>
+          <div className="fixed inset-0 z-50 flex items-end sm:items-start sm:overflow-y-auto justify-center sm:py-[100px] sm:px-6 pointer-events-none" onClick={onClose}>
             <motion.div
               layoutId={`card-${challenge.id}`}
-              className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto max-h-[calc(100vh-40px)] sm:max-h-[calc(100vh-200px)]"
+              className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto max-h-[calc(100vh-40px)] sm:max-h-none"
               style={{ boxShadow: "var(--shadow-modal)" }}
               onClick={(e) => e.stopPropagation()}
               transition={{ type: "spring", duration: reduceMotion ? 0 : 0.4, bounce: reduceMotion ? 0 : 0.1 }}
@@ -133,8 +133,8 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
               </motion.div>
 
               {/* Scrollable content */}
-              <div className="overflow-y-auto flex-1">
-                <div className="relative p-4 sm:p-10 flex flex-col gap-5 sm:gap-10">
+              <div className="overflow-y-auto sm:overflow-visible flex-1">
+                <div className="relative p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
 
                   {/* Close X button */}
                   <GlassButton onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center">
