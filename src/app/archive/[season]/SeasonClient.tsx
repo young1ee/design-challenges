@@ -166,10 +166,10 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
       <div className="w-full overflow-x-auto">
         <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px" }}>
           <div className="contents">
-            <div className="pl-2 sm:pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
-            <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
+            <div className="pr-0 py-1.5" style={{ paddingLeft: "12px" }}><span className="text-xs text-fg-muted">#</span></div>
+            <div className="px-2 sm:px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
             {headers.map((l) => (
-              <div key={l} className="px-3 py-1.5 flex justify-center">
+              <div key={l} className="px-2 sm:px-3 py-1.5 flex justify-center">
                 <span className="text-xs text-fg-muted">{l}</span>
               </div>
             ))}
@@ -179,10 +179,10 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
             const cells = simplified ? [row.entries, row.first] : [row.entries, row.first, row.second, row.third];
             return (
               <div key={row.name} className="contents">
-                <div className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "rgba(180,188,208,0.04)" }}>
                   <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                 </div>
-                <div className="px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
+                <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
                   <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
                     {row.avatarUrl
                       ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
@@ -192,11 +192,11 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
                   <span className="text-sm text-fg-primary">{row.name}</span>
                 </div>
                 {cells.map((val, j) => (
-                  <div key={j} className="px-3 py-2.5 flex items-center justify-center" style={{ background: "rgba(180,188,208,0.04)" }}>
+                  <div key={j} className="px-2 sm:px-3 py-2.5 flex items-center justify-center" style={{ background: "rgba(180,188,208,0.04)" }}>
                     <span className="text-sm text-fg-secondary tabular-nums">{val}</span>
                   </div>
                 ))}
-                <div className="px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
                   <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
                 </div>
               </div>
@@ -580,17 +580,17 @@ function OldSeasonLayout({
               <div style={{ display: "grid", gridTemplateColumns: oldCols, rowGap: "2px" }}>
                 {/* Header */}
                 <div className="contents">
-                  <div className="pl-2 sm:pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
-                  <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
-                  <div className="px-3 py-1.5 flex justify-center"><span className="text-xs text-fg-muted">Points</span></div>
+                  <div className="pr-0 py-1.5" style={{ paddingLeft: "12px" }}><span className="text-xs text-fg-muted">#</span></div>
+                  <div className="px-2 sm:px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
+                  <div className="px-2 sm:px-3 py-1.5 flex justify-center"><span className="text-xs text-fg-muted">Points</span></div>
                 </div>
                 {/* Rows */}
                 {leaderboard.map((row, i) => (
                   <div key={row.name} className="contents">
-                    <div className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                    <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "rgba(180,188,208,0.04)" }}>
                       <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                     </div>
-                    <div className="px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
+                    <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
                       <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
                         {row.avatarUrl
                           ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
@@ -599,7 +599,7 @@ function OldSeasonLayout({
                       </div>
                       <span className="text-sm text-fg-primary">{row.name}</span>
                     </div>
-                    <div className="px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                    <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
                       <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
                     </div>
                   </div>
