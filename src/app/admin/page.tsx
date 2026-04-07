@@ -1051,7 +1051,8 @@ export default function AdminPage() {
   const [selectedYear, setSelectedYear] = useState(2026);
   const [modal, setModal] = useState<ActiveModal>(null);
   const [viewingAs, setViewingAs] = useState<DbDesigner | null>(null);
-  const [greeting] = useState(() => greetings[Math.floor(Math.random() * greetings.length)]);
+  const [greeting, setGreeting] = useState(greetings[0]);
+  useEffect(() => { setGreeting(greetings[Math.floor(Math.random() * greetings.length)]); }, []);
 
   const [userName, setUserName] = useState("");
   const [myDesignerId, setMyDesignerId] = useState<string | null>(null);
