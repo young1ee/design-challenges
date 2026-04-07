@@ -879,36 +879,37 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
           </button>
         </div>}
       </div>
-      {/* Invite — hidden when editing own profile */}
       <div className="border-t border-line" />
 
-
-      {/* Invite — hidden when editing own profile */}
-      {!isSelf && <div className="flex flex-col gap-2">
-        <p className="text-sm text-fg-muted">Send login invite</p>
-        <div className="flex gap-2">
-          <Input
-            type="email"
-            placeholder="name.lastname@nortal.com"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            className="flex-1"
-          />
-          <button
-            className={glassBtn}
-            style={glassStyle}
-            onClick={handleInvite}
-            disabled={!inviteEmail || inviting}
-          >
-            {inviting ? "Sending…" : "Send invite"}
-          </button>
-        </div>
-        {inviteStatus && (
-          <p className={`text-xs ${inviteStatus.ok ? "text-success" : "text-danger"}`}>
-            {inviteStatus.msg}
-          </p>
-        )}
-      </div>}
+      {!isSelf && (
+        designer.auth_user_id && !inviteStatus?.ok
+          ? <p className="text-xs text-fg-muted">Login already linked</p>
+          : <div className="flex flex-col gap-2">
+              <p className="text-sm text-fg-muted">Send login invite</p>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="name.lastname@nortal.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="flex-1"
+                />
+                <button
+                  className={glassBtn}
+                  style={glassStyle}
+                  onClick={handleInvite}
+                  disabled={!inviteEmail || inviting}
+                >
+                  {inviting ? "Sending…" : "Send invite"}
+                </button>
+              </div>
+              {inviteStatus && (
+                <p className={`text-xs ${inviteStatus.ok ? "text-success" : "text-danger"}`}>
+                  {inviteStatus.msg}
+                </p>
+              )}
+            </div>
+      )}
 
       {error && <p className="text-xs text-danger">{error}</p>}
       <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
