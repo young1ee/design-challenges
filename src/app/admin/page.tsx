@@ -1226,12 +1226,12 @@ export default function AdminPage() {
                         >
                           Edit challenge
                         </button>}
-                        {viewingAs && viewingAs.slug === challenge.master_of_ceremony?.slug && (
+                        {viewingAs && viewingAs.slug === challenge.master_of_ceremony?.slug && !effectiveIsAdmin && (
                           <button
                             onClick={() => setModal({ kind: "set-prompt", challenge })}
                             className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
                           >
-                            {challenge.prompt ? "Edit prompt" : "Set prompt"}
+                            {challenge.prompt ? "Edit challenge" : "Set prompt"}
                           </button>
                         )}
                       </div>
