@@ -479,7 +479,6 @@ function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChalleng
 
   return (
     <ModalShell title={challenge.prompt ? "Edit prompt" : "Set prompt"} onClose={onClose}>
-      <p className="text-sm text-fg-muted">{new Date(challenge.challenge_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What's the challenge this week?" />
       </FieldGroup>
