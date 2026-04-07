@@ -319,7 +319,10 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
 }) {
   const [prompt, setPrompt] = useState(challenge.prompt ?? "");
   const [status, setStatus] = useState(challenge.status ?? "open");
-  const [challengeDate, setChallengeDate] = useState(challenge.challenge_date.slice(0, 10));
+  const [date, setDate] = useState(() => {
+    const d = new Date(challenge.challenge_date);
+    return { day: String(d.getUTCDate()), month: MONTHS[d.getUTCMonth()], year: String(d.getUTCFullYear()) };
+  });
   const [moc, setMoc] = useState(challenge.master_of_ceremony ? designers.find((d) => d.slug === challenge.master_of_ceremony?.slug)?.id ?? "" : "");
   const [placements, setPlacements] = useState<Record<1 | 2 | 3, string>>({ 1: "", 2: "", 3: "" });
   const [saving, setSaving] = useState(false);
@@ -347,7 +350,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
     // Update challenge
     const { error: err } = await supabase
       .from("challenges")
-      .update({ prompt, status, challenge_date: challengeDate, master_of_ceremony_id: moc || null })
+      .update({ prompt, status, challenge_date: `${date.year}-${String(MONTHS.indexOf(date.month) + 1).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`, master_of_ceremony_id: moc || null })
       .eq("id", challenge.id);
     if (err) { setError(err.message); setSaving(false); return; }
 
@@ -389,7 +392,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
         </Select>
       </FieldGroup>
       <FieldGroup label="Date">
-        <input type="date" value={challengeDate} onChange={(e) => setChallengeDate(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-3 py-2 text-sm text-fg-primary outline-none focus:border-white/25 transition-colors" />
+        <DatePicker value={date} onChange={setDate} />
       </FieldGroup>
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
