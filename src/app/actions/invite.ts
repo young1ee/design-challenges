@@ -13,14 +13,14 @@ export async function inviteDesigner(email: string, redirectTo: string, role: "a
     redirectTo,
   });
 
-  if (error) return { error: error.message };
+  if (error) return { error: error.message, userId: null };
 
   const { error: updateError } = await supabase.auth.admin.updateUserById(
     data.user.id,
     { app_metadata: { role } }
   );
 
-  if (updateError) return { error: updateError.message };
+  if (updateError) return { error: updateError.message, userId: null };
 
-  return { error: null };
+  return { error: null, userId: data.user.id };
 }
