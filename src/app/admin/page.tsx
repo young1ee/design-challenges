@@ -239,7 +239,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
       <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
         <div className="flex min-h-full items-center justify-center p-6 pointer-events-none">
           <motion.div
-            className="w-full max-w-[400px] bg-surface rounded-2xl p-6 flex flex-col gap-4 pointer-events-auto"
+            className="w-full max-w-[400px] bg-surface rounded-2xl p-5 flex flex-col gap-4 pointer-events-auto"
             style={{ boxShadow: "var(--shadow-modal)" }}
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.97, y: 6 }}
