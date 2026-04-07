@@ -169,7 +169,7 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
       <div className="w-full overflow-x-auto">
         <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px", minWidth: simplified ? 320 : 420 }}>
           <div className="contents">
-            <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
+            <div className="pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
             <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
             {headers.map((l) => (
               <div key={l} className="px-3 py-1.5 flex justify-center">
@@ -184,7 +184,7 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
               : [row.entries, row.first, row.second, row.third];
             return (
               <div key={row.name} className="contents">
-                <div className="px-3 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                <div className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
                   <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                 </div>
                 <div className="px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
@@ -586,14 +586,14 @@ function OldSeasonLayout({
               <div style={{ display: "grid", gridTemplateColumns: oldCols, rowGap: "2px", minWidth: 280 }}>
                 {/* Header */}
                 <div className="contents">
-                  <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
+                  <div className="pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
                   <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
                   <div className="px-3 py-1.5 flex justify-center"><span className="text-xs text-fg-muted">Points</span></div>
                 </div>
                 {/* Rows */}
                 {leaderboard.map((row, i) => (
                   <div key={row.name} className="contents">
-                    <div className="px-3 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                    <div className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
                       <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                     </div>
                     <div className="px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
