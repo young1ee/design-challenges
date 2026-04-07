@@ -568,7 +568,7 @@ function SubmitEntryModal({ challenge, myDesignerId, onClose, onSaved }: {
     if (thumbFile && inserted) {
       try {
         const url = await uploadImage("thumbnails", `${inserted.id}.${thumbFile.name.split(".").pop()}`, thumbFile);
-        await supabase.from("entries").update({ thumbnail_url: url }).eq("id", inserted.id);
+        await supabase.from("entries").update({ thumbnail_url: `${url}?t=${Date.now()}` }).eq("id", inserted.id);
       } catch (e: unknown) { setError((e as Error).message); setSaving(false); return; }
     }
     setSaving(false);
@@ -625,7 +625,8 @@ function EditEntryModal({ entry, onClose, onSaved }: {
     let thumbnailUrl: string | null = thumbRemoved ? null : entry.thumbnail_url;
     if (thumbFile) {
       try {
-        thumbnailUrl = await uploadImage("thumbnails", `${entry.id}.${thumbFile.name.split(".").pop()}`, thumbFile);
+        const raw = await uploadImage("thumbnails", `${entry.id}.${thumbFile.name.split(".").pop()}`, thumbFile);
+        thumbnailUrl = `${raw}?t=${Date.now()}`;
       } catch (e: unknown) { setError((e as Error).message); setSaving(false); return; }
     }
     const { error: err } = await supabase.from("entries")
@@ -798,7 +799,8 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     let avatarUrl = designer.avatar_url;
     if (avatarFile) {
       try {
-        avatarUrl = await uploadImage("avatars", `${designer.slug}.${avatarFile.name.split(".").pop()}`, avatarFile);
+        const rawAvatar = await uploadImage("avatars", `${designer.slug}.${avatarFile.name.split(".").pop()}`, avatarFile);
+        avatarUrl = `${rawAvatar}?t=${Date.now()}`;
       } catch (e: unknown) { setError((e as Error).message); setSaving(false); return; }
     }
     const role = isAdminRole ? "admin" : "member";
