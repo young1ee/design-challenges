@@ -156,12 +156,11 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                   background: "linear-gradient(to bottom, var(--color-surface) 40%, transparent 100%)",
                   backdropFilter: "blur(12px)",
                   WebkitBackdropFilter: "blur(12px)",
-                  paddingBottom: "28px",
                 }}
               >
                 <div className="flex justify-center py-3">
                   <svg width="32" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="4" rx="2" fill="rgba(148,163,184,0.25)" />
+                    <rect width="32" height="4" rx="2" fill="var(--color-elevated)" />
                   </svg>
                 </div>
               </div>
