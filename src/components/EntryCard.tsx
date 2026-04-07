@@ -27,13 +27,28 @@ export default function EntryCard({
     <div className="flex flex-col gap-2 rounded-xl w-full">
       {/* Thumbnail */}
       <div
-        className={`relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden${prototypeUrl ? " group prompt-card cursor-pointer" : ""}`}
+        className={`relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden${prototypeUrl ? " group cursor-pointer" : ""}`}
         onClick={prototypeUrl ? () => window.open(prototypeUrl, "_blank", "noopener,noreferrer") : undefined}
       >
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt={title} className={`w-full h-full object-cover transition-transform duration-200${prototypeUrl ? " group-hover:scale-[1.02]" : ""}`} />
         ) : (
           <div className="w-full h-full bg-canvas" />
+        )}
+
+        {/* Gradient border overlay on hover */}
+        {prototypeUrl && (
+          <div
+            className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            style={{
+              padding: "1px",
+              background: "radial-gradient(ellipse at 0% 0%, #39ff3e 0%, transparent 60%)",
+              WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "destination-out",
+              maskComposite: "exclude",
+            }}
+          />
         )}
 
         {/* Placement badge */}
