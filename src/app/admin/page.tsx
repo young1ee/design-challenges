@@ -7,6 +7,7 @@ import Nav from "@/components/Nav";
 import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
 import { inviteDesigner } from "@/app/actions/invite";
+import { setAuthRole } from "@/app/actions/role";
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
@@ -23,6 +24,7 @@ interface DbDesigner {
   is_active: boolean;
   left_at: string | null;
   avatar_url: string | null;
+  auth_user_id: string | null;
 }
 
 async function uploadImage(bucket: string, path: string, file: File): Promise<string> {
@@ -296,7 +298,7 @@ function NewChallengeModal({ designers, seasons, onClose, onSaved }: {
       <FieldGroup label="Master of Ceremony">
         <Select value={moc} onChange={(e) => setMoc(e.target.value)} style={{ color: moc ? "var(--color-fg-primary)" : "var(--color-fg-muted)" }}>
           <option value="">Select designer</option>
-          {designers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          {designers.filter((d) => d.is_active).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </Select>
       </FieldGroup>
       {error && <p className="text-xs text-danger">{error}</p>}
@@ -316,6 +318,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
   onSaved: () => void;
 }) {
   const [prompt, setPrompt] = useState(challenge.prompt ?? "");
+  const [status, setStatus] = useState(challenge.status ?? "open");
   const [moc, setMoc] = useState(challenge.master_of_ceremony ? designers.find((d) => d.slug === challenge.master_of_ceremony?.slug)?.id ?? "" : "");
   const [placements, setPlacements] = useState<Record<1 | 2 | 3, string>>({ 1: "", 2: "", 3: "" });
   const [saving, setSaving] = useState(false);
@@ -343,7 +346,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
     // Update challenge
     const { error: err } = await supabase
       .from("challenges")
-      .update({ prompt, master_of_ceremony_id: moc || null })
+      .update({ prompt, status, master_of_ceremony_id: moc || null })
       .eq("id", challenge.id);
     if (err) { setError(err.message); setSaving(false); return; }
 
@@ -378,13 +381,19 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
 
   return (
     <ModalShell title="Edit challenge" onClose={onClose}>
+      <FieldGroup label="Status">
+        <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="open">Active</option>
+          <option value="closed">Closed</option>
+        </Select>
+      </FieldGroup>
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
       </FieldGroup>
       <FieldGroup label="Master of Ceremony">
         <Select value={moc} onChange={(e) => setMoc(e.target.value)}>
           <option value="">Select designer</option>
-          {designers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          {designers.filter((d) => d.is_active).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </Select>
       </FieldGroup>
       {entryOptions.length > 0 && (
@@ -705,10 +714,10 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     month: MONTHS[joinedDate.getUTCMonth()],
     year: String(joinedDate.getUTCFullYear()),
   });
+  const [isAdminRole, setIsAdminRole] = useState(designer.role === "admin");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteAdmin, setInviteAdmin] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [inviteStatus, setInviteStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   async function handleInvite() {
@@ -716,10 +725,15 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     setInviting(true);
     setInviteStatus(null);
     const confirmUrl = `${window.location.origin}/auth/confirm`;
-    const { error } = await inviteDesigner(inviteEmail, confirmUrl, inviteAdmin ? "admin" : "member");
+    const { error, userId } = await inviteDesigner(inviteEmail, confirmUrl, isAdminRole ? "admin" : "member");
     setInviting(false);
-    if (error) setInviteStatus({ ok: false, msg: error });
-    else setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
+    if (error) { setInviteStatus({ ok: false, msg: error }); return; }
+    // Save auth_user_id back to designer row
+    if (userId) {
+      const supabase = createClient();
+      await supabase.from("designers").update({ auth_user_id: userId }).eq("id", designer.id);
+    }
+    setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -745,10 +759,16 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
         avatarUrl = await uploadImage("avatars", `${designer.slug}.${avatarFile.name.split(".").pop()}`, avatarFile);
       } catch (e: unknown) { setError((e as Error).message); setSaving(false); return; }
     }
+    const role = isAdminRole ? "admin" : "member";
     const { error: err } = await supabase.from("designers").update({
-      name, location: location || null, joined_at: joinedAt, is_active: active, left_at: leftAt, avatar_url: avatarUrl,
+      name, location: location || null, joined_at: joinedAt, is_active: active, left_at: leftAt, avatar_url: avatarUrl, role,
     }).eq("id", designer.id);
     if (err) { setSaving(false); setError(err.message); return; }
+
+    // Sync role to Supabase auth if user has logged in
+    if (designer.auth_user_id) {
+      await setAuthRole(designer.auth_user_id, role);
+    }
 
     setSaving(false);
     onSaved();
@@ -791,15 +811,15 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
         {!isSelf && <div className="flex flex-col gap-3">
           <p className="text-sm text-fg-muted">Admin</p>
           <button
-            onClick={() => setInviteAdmin(!inviteAdmin)}
+            onClick={() => setIsAdminRole(!isAdminRole)}
             className="relative w-10 h-[22px] rounded-full p-px cursor-pointer outline-none"
-            style={{ background: inviteAdmin ? "var(--color-accent)" : "var(--color-elevated)", transition: "background-color 150ms ease" }}
+            style={{ background: isAdminRole ? "var(--color-accent)" : "var(--color-elevated)", transition: "background-color 150ms ease" }}
           >
             <div
               className="w-5 h-5 rounded-full"
               style={{
-                background: inviteAdmin ? "var(--color-canvas)" : "var(--color-glass-active)",
-                transform: inviteAdmin ? "translateX(18px)" : "translateX(0px)",
+                background: isAdminRole ? "var(--color-canvas)" : "var(--color-glass-active)",
+                transform: isAdminRole ? "translateX(18px)" : "translateX(0px)",
                 transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             />
@@ -989,6 +1009,7 @@ export default function AdminPage() {
   const [loadingDesigners, setLoadingDesigners] = useState(false);
 
   const close = () => setModal(null);
+  const effectiveIsAdmin = viewingAs ? viewingAs.role === "admin" : isAdmin;
 
   // Load auth user and match to designer profile
   useEffect(() => {
@@ -1038,7 +1059,7 @@ export default function AdminPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("designers")
-      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url")
+      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url, auth_user_id")
       .order("joined_at", { ascending: true });
     setLoadingDesigners(false);
     if (data) setDesigners(data);
@@ -1082,7 +1103,7 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
 
-            {isAdmin && !viewingAs && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
+            {effectiveIsAdmin && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
               {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
@@ -1103,7 +1124,7 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between gap-4">
                 <YearDropdown value={selectedYear} onChange={setSelectedYear} />
-                {isAdmin && !viewingAs && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
+                {effectiveIsAdmin && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
                   New challenge
                 </button>}
               </div>
@@ -1145,7 +1166,7 @@ export default function AdminPage() {
                             ))}
                           </div>
                         )}
-                        {isAdmin && !viewingAs && <button
+                        {effectiveIsAdmin && <button
                           onClick={() => setModal({ kind: "edit-challenge", challenge })}
                           className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
                         >
@@ -1156,7 +1177,7 @@ export default function AdminPage() {
                             onClick={() => setModal({ kind: "set-prompt", challenge })}
                             className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
                           >
-                            Set prompt
+                            {challenge.prompt ? "Edit prompt" : "Set prompt"}
                           </button>
                         )}
                       </div>
@@ -1191,7 +1212,7 @@ export default function AdminPage() {
           {/* Designers tab */}
           {activeTab === "designers" && (
             <>
-              {isAdmin && !viewingAs && <div className="flex justify-end">
+              {effectiveIsAdmin && <div className="flex justify-end">
                 <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-designer" })}>
                   Add designer
                 </button>
@@ -1226,13 +1247,13 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {isAdmin && !viewingAs && <button
+                        {effectiveIsAdmin && <button
                           className={ghostBtn}
                           onClick={() => { setViewingAs(designer); setActiveTab("challenges"); }}
                         >
                           View as
                         </button>}
-                        {isAdmin && !viewingAs && <button
+                        {effectiveIsAdmin && <button
                           className={glassBtn}
                           style={glassStyle}
                           onClick={() => setModal({ kind: "edit-designer", designer })}
