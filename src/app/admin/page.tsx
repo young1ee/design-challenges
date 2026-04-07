@@ -319,6 +319,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
 }) {
   const [prompt, setPrompt] = useState(challenge.prompt ?? "");
   const [status, setStatus] = useState(challenge.status ?? "open");
+  const [challengeDate, setChallengeDate] = useState(challenge.challenge_date.slice(0, 10));
   const [moc, setMoc] = useState(challenge.master_of_ceremony ? designers.find((d) => d.slug === challenge.master_of_ceremony?.slug)?.id ?? "" : "");
   const [placements, setPlacements] = useState<Record<1 | 2 | 3, string>>({ 1: "", 2: "", 3: "" });
   const [saving, setSaving] = useState(false);
@@ -346,7 +347,7 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
     // Update challenge
     const { error: err } = await supabase
       .from("challenges")
-      .update({ prompt, status, master_of_ceremony_id: moc || null })
+      .update({ prompt, status, challenge_date: challengeDate, master_of_ceremony_id: moc || null })
       .eq("id", challenge.id);
     if (err) { setError(err.message); setSaving(false); return; }
 
@@ -387,6 +388,9 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
           <option value="closed">Closed</option>
         </Select>
       </FieldGroup>
+      <FieldGroup label="Date">
+        <input type="date" value={challengeDate} onChange={(e) => setChallengeDate(e.target.value)} className="w-full bg-transparent border border-white/10 rounded-lg px-3 py-2 text-sm text-fg-primary outline-none focus:border-white/25 transition-colors" />
+      </FieldGroup>
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} />
       </FieldGroup>
@@ -396,20 +400,16 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
           {designers.filter((d) => d.is_active).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </Select>
       </FieldGroup>
-      {entryOptions.length > 0 && (
-        <>
-          {positions.map((pos) => (
-            <FieldGroup key={pos} label={posLabel[pos]}>
-              <Select value={placements[pos]} onChange={(e) => setPlacements((p) => ({ ...p, [pos]: e.target.value }))}>
-                <option value="">—</option>
-                {entryOptions.map((e) => (
-                  <option key={e.id} value={e.id}>{e.designer?.name ?? "Unknown"}{e.title ? ` — ${e.title}` : ""}</option>
-                ))}
-              </Select>
-            </FieldGroup>
-          ))}
-        </>
-      )}
+      {hasPodium && positions.map((pos) => (
+        <FieldGroup key={pos} label={posLabel[pos]}>
+          <Select value={placements[pos]} onChange={(e) => setPlacements((p) => ({ ...p, [pos]: e.target.value }))}>
+            <option value="">—</option>
+            {entryOptions.map((e) => (
+              <option key={e.id} value={e.id}>{e.designer?.name ?? "Unknown"}{e.title ? ` — ${e.title}` : ""}</option>
+            ))}
+          </Select>
+        </FieldGroup>
+      ))}
       {error && <p className="text-xs text-danger">{error}</p>}
       <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
@@ -423,26 +423,65 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
 
 function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChallenge; onClose: () => void; onSaved: () => void }) {
   const [prompt, setPrompt] = useState(challenge.prompt ?? "");
+  const [placements, setPlacements] = useState<Record<1 | 2 | 3, string>>({ 1: "", 2: "", 3: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const entryOptions = challenge.entries;
+  const hasPodium = new Date(challenge.challenge_date).getFullYear() !== 2025;
+  const posLabel: Record<number, string> = { 1: "Winner", 2: "2nd place", 3: "3rd place" };
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from("results").select("position, entry_id").eq("challenge_id", challenge.id).then(({ data }) => {
+      if (!data) return;
+      const next = { 1: "", 2: "", 3: "" } as Record<1 | 2 | 3, string>;
+      data.forEach((r) => {
+        if (r.position === 1 || r.position === 2 || r.position === 3)
+          next[r.position as 1 | 2 | 3] = r.entry_id ?? "";
+      });
+      setPlacements(next);
+    });
+  }, [challenge.id]);
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     const supabase = createClient();
+
     const { error: err } = await supabase.from("challenges").update({ prompt }).eq("id", challenge.id);
+    if (err) { setError(err.message); setSaving(false); return; }
+
+    await supabase.from("results").delete().eq("challenge_id", challenge.id).in("position", [1, 2, 3]);
+    const toInsert = ([1, 2, 3] as const)
+      .filter((pos) => placements[pos])
+      .map((pos) => ({ challenge_id: challenge.id, entry_id: placements[pos], position: pos, points_awarded: POSITION_POINTS[pos] }));
+    if (toInsert.length > 0) {
+      const { error: rErr } = await supabase.from("results").insert(toInsert);
+      if (rErr) { setError(rErr.message); setSaving(false); return; }
+    }
+
     setSaving(false);
-    if (err) { setError(err.message); return; }
     onSaved();
     onClose();
   }
 
   return (
-    <ModalShell title="Set prompt" onClose={onClose}>
+    <ModalShell title={challenge.prompt ? "Edit prompt" : "Set prompt"} onClose={onClose}>
       <p className="text-sm text-fg-muted">{new Date(challenge.challenge_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What's the challenge this week?" />
       </FieldGroup>
+      {hasPodium && ([1, 2, 3] as const).map((pos) => (
+        <FieldGroup key={pos} label={posLabel[pos]}>
+          <Select value={placements[pos]} onChange={(e) => setPlacements((p) => ({ ...p, [pos]: e.target.value }))}>
+            <option value="">—</option>
+            {entryOptions.map((e) => (
+              <option key={e.id} value={e.id}>{e.designer?.name ?? "Unknown"}{e.title ? ` — ${e.title}` : ""}</option>
+            ))}
+          </Select>
+        </FieldGroup>
+      ))}
       {error && <p className="text-xs text-danger">{error}</p>}
       <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
