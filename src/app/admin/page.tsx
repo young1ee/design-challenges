@@ -483,7 +483,7 @@ function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChalleng
       <FieldGroup label="Prompt">
         <Textarea style={{ height: 120 }} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="What's the challenge this week?" />
       </FieldGroup>
-      {(hasPodium ? [1, 2, 3] : [1] as const).map((pos) => (
+      {(hasPodium ? [1, 2, 3] as const : [1] as const).map((pos) => (
         <FieldGroup key={pos} label={posLabel[pos]}>
           <Select value={placements[pos]} onChange={(e) => setPlacements((p) => ({ ...p, [pos]: e.target.value }))}>
             <option value="">—</option>
