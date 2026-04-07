@@ -164,7 +164,7 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="w-full overflow-x-auto">
-        <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px", minWidth: simplified ? 320 : 420 }}>
+        <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px" }}>
           <div className="contents">
             <div className="pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
             <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>

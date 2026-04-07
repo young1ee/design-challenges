@@ -163,7 +163,6 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
         display: "grid",
         gridTemplateColumns: "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)",
         rowGap: "2px",
-        minWidth: 420,
       }}
     >
       {/* Header row */}
