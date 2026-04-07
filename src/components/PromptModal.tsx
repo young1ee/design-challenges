@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import EntryCard from "./EntryCard";
 
@@ -69,6 +69,14 @@ function CloseIcon() {
 
 export default function PromptModal({ challenge, onClose }: PromptModalProps) {
   const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     if (challenge) {
@@ -101,25 +109,26 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-end sm:items-start sm:overflow-y-auto justify-center sm:py-[100px] sm:px-6 pointer-events-none" onClick={onClose}>
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-start sm:overflow-y-auto sm:pointer-events-auto justify-center sm:py-[100px] sm:px-6 pointer-events-none"
+            onClick={onClose}
+          >
             <motion.div
               layoutId={`card-${challenge.id}`}
               className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto max-h-[calc(100vh-40px)] sm:max-h-none"
               style={{ boxShadow: "var(--shadow-modal)" }}
               onClick={(e) => e.stopPropagation()}
+              drag={isMobile ? "y" : false}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.8 }}
+              onDragEnd={(_, info) => {
+                if (isMobile && (info.offset.y > 80 || info.velocity.y > 400)) onClose();
+              }}
               transition={{ type: "spring", duration: reduceMotion ? 0 : 0.4, bounce: reduceMotion ? 0 : 0.1 }}
             >
 
               {/* Drag handle — mobile only */}
-              <motion.div
-                className="sm:hidden shrink-0 sticky top-0 z-10 bg-surface rounded-t-2xl cursor-grab active:cursor-grabbing"
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0, bottom: 0.8 }}
-                onDragEnd={(_, info) => {
-                  if (info.offset.y > 80 || info.velocity.y > 400) onClose();
-                }}
-              >
+              <div className="sm:hidden shrink-0 sticky top-0 z-10 bg-surface rounded-t-2xl">
                 <div className="flex justify-center py-3">
                   <svg width="32" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="32" height="4" rx="2" fill="rgba(148,163,184,0.25)" />
@@ -130,7 +139,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                   className="absolute inset-x-0 -bottom-6 h-6 pointer-events-none"
                   style={{ background: "linear-gradient(to bottom, var(--color-surface), transparent)" }}
                 />
-              </motion.div>
+              </div>
 
               {/* Scrollable content */}
               <div className="overflow-y-auto sm:overflow-visible flex-1">
