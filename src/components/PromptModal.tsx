@@ -102,7 +102,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
 
           {/* Modal — scrolls with browser */}
           <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
-            <div className="flex min-h-full items-start justify-center py-20 px-6 pointer-events-none">
+            <div className="flex min-h-full items-start justify-center p-4 sm:py-20 sm:px-6 pointer-events-none">
               <motion.div
                 layoutId={`card-${challenge.id}`}
                 className="relative w-full max-w-[920px] bg-surface rounded-2xl p-5 sm:p-10 flex flex-col gap-5 sm:gap-10 pointer-events-auto"

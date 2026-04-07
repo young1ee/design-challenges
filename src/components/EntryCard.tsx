@@ -26,9 +26,12 @@ export default function EntryCard({
   return (
     <div className="flex flex-col gap-2 rounded-xl w-full">
       {/* Thumbnail */}
-      <div className="relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden">
+      <div
+        className={`relative aspect-[264/160] rounded-xl bg-canvas overflow-hidden${prototypeUrl ? " group prompt-card cursor-pointer" : ""}`}
+        onClick={prototypeUrl ? () => window.open(prototypeUrl, "_blank", "noopener,noreferrer") : undefined}
+      >
         {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />
+          <img src={thumbnailUrl} alt={title} className={`w-full h-full object-cover transition-transform duration-200${prototypeUrl ? " group-hover:scale-[1.02]" : ""}`} />
         ) : (
           <div className="w-full h-full bg-canvas" />
         )}
@@ -48,7 +51,7 @@ export default function EntryCard({
             href={prototypeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-elevated text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97]"
+            className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-lg bg-surface group-hover:bg-elevated text-fg-secondary group-hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97]"
             style={{ boxShadow: "var(--shadow-btn)" }}
             onClick={(e) => e.stopPropagation()}
           >
