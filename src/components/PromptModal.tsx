@@ -163,6 +163,15 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                     <rect width="32" height="4" rx="2" fill="var(--color-elevated)" />
                   </svg>
                 </div>
+                {/* Gradient fade + blur extending below handle into content */}
+                <div
+                  className="absolute inset-x-0 top-full h-8 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(to bottom, var(--color-surface), transparent)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                  }}
+                />
               </div>
 
               {/* Scrollable content — drag starts here only when scrolled to top */}
