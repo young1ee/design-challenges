@@ -35,6 +35,13 @@ async function uploadImage(bucket: string, path: string, file: File): Promise<st
   return data.publicUrl;
 }
 
+async function deleteStorageFiles(bucket: string, namePrefix: string) {
+  const supabase = createClient();
+  const { data } = await supabase.storage.from(bucket).list("", { search: namePrefix });
+  const toDelete = data?.filter((f) => f.name.startsWith(`${namePrefix}.`)).map((f) => f.name);
+  if (toDelete?.length) await supabase.storage.from(bucket).remove(toDelete);
+}
+
 interface DbEntry {
   id: string;
   title: string | null;
@@ -623,6 +630,7 @@ function EditEntryModal({ entry, onClose, onSaved }: {
     setError(null);
     const supabase = createClient();
     let thumbnailUrl: string | null = thumbRemoved ? null : entry.thumbnail_url;
+    if (thumbRemoved || thumbFile) await deleteStorageFiles("thumbnails", entry.id);
     if (thumbFile) {
       try {
         const raw = await uploadImage("thumbnails", `${entry.id}.${thumbFile.name.split(".").pop()}`, thumbFile);
@@ -798,6 +806,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       : active ? null : designer.left_at;
     let avatarUrl = designer.avatar_url;
     if (avatarFile) {
+      await deleteStorageFiles("avatars", designer.slug);
       try {
         const rawAvatar = await uploadImage("avatars", `${designer.slug}.${avatarFile.name.split(".").pop()}`, avatarFile);
         avatarUrl = `${rawAvatar}?t=${Date.now()}`;
