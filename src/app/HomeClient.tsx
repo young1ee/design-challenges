@@ -164,8 +164,8 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
   }, []);
 
   const cols = isMobile
-    ? "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)"
-    : "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)";
+    ? "fit-content(100%) minmax(0,1fr) auto auto auto"
+    : "fit-content(100%) minmax(0,1fr) auto auto auto auto auto";
   const headers = isMobile ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
 
   return (

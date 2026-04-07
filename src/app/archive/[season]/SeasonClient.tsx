@@ -157,8 +157,8 @@ function ChartTooltip(props: any) {
 
 function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; simplified?: boolean }) {
   const cols = simplified
-    ? "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)"
-    : "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)";
+    ? "fit-content(100%) minmax(0,1fr) auto auto auto"
+    : "fit-content(100%) minmax(0,1fr) auto auto auto auto auto";
   const headers = simplified ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
 
   return (
@@ -506,7 +506,7 @@ function OldSeasonLayout({
     : 0;
 
   // Simplified leaderboard: # | Designer | Points only
-  const oldCols = "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr)";
+  const oldCols = "fit-content(100%) minmax(0,1fr) auto";
 
   return (
     <div className="flex flex-col gap-20 w-full max-w-[920px] mx-auto px-4 sm:px-6">
@@ -577,7 +577,7 @@ function OldSeasonLayout({
           <div className="w-full p-5 rounded-2xl bg-surface flex flex-col gap-4" style={{ boxShadow: "var(--shadow-default)" }}>
             <p className="text-base text-fg-secondary">Leaderboard</p>
             <div className="w-full overflow-x-auto">
-              <div style={{ display: "grid", gridTemplateColumns: oldCols, rowGap: "2px", minWidth: 280 }}>
+              <div style={{ display: "grid", gridTemplateColumns: oldCols, rowGap: "2px" }}>
                 {/* Header */}
                 <div className="contents">
                   <div className="pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
