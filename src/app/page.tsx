@@ -1,25 +1,29 @@
 import HomeClient from "./HomeClient";
 import {
-  getOpenChallenge,
+  getMostRecentChallenge,
   getSeasonChallenges,
   getSeasonLeaderboard,
   getActiveDesigners,
 } from "@/lib/db/queries";
 
 export default async function HomePage() {
-  const [openChallenge, previousChallenges, leaderboard, allDesigners] = await Promise.all([
-    getOpenChallenge(),
+  const [mostRecentChallenge, previousChallenges, leaderboard, allDesigners] = await Promise.all([
+    getMostRecentChallenge(),
     getSeasonChallenges(4, "closed"),
     getSeasonLeaderboard(4),
     getActiveDesigners(),
   ]);
 
-  // ─── Map open challenge ────────────────────────────────────────────────────
-  const currentChallenge = openChallenge
-    ? { prompt: openChallenge.prompt ?? "", challengeDate: openChallenge.challenge_date }
+  // ─── Map current challenge (most recent, open or closed) ──────────────────
+  const currentChallenge = mostRecentChallenge
+    ? {
+        prompt: mostRecentChallenge.prompt ?? "",
+        challengeDate: mostRecentChallenge.challenge_date,
+        isOpen: mostRecentChallenge.status === "open",
+      }
     : null;
 
-  // ─── Map previous challenges ───────────────────────────────────────────────
+  // ─── Map previous challenges (exclude the one shown in hero) ──────────────
   type DbEntry = {
     id: string;
     title: string | null;
@@ -37,8 +41,10 @@ export default async function HomePage() {
     allDesigners.map((d) => [d.name, (d as { avatar_url?: string | null }).avatar_url ?? null])
   );
 
-  const mappedChallenges = previousChallenges.map((c) => {
-    const date = new Date(c.challenge_date).toLocaleDateString("en-US", {
+  const mappedChallenges = previousChallenges
+    .filter((c) => c.id !== mostRecentChallenge?.id)
+    .map((c) => {
+      const date = new Date(c.challenge_date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",

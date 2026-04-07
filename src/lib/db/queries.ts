@@ -114,7 +114,7 @@ export async function getSeasonChallenges(seasonNumber: number, statusFilter?: "
   return data ?? [];
 }
 
-export async function getOpenChallenge() {
+export async function getMostRecentChallenge() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("challenges")
@@ -130,7 +130,6 @@ export async function getOpenChallenge() {
         entry:entry_id ( designer:designer_id ( slug, name ) )
       )
     `)
-    .eq("status", "open")
     .order("challenge_date", { ascending: false })
     .limit(1)
     .maybeSingle();

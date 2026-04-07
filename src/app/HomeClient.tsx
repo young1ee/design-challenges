@@ -63,7 +63,7 @@ interface LeaderboardRow {
 }
 
 export interface HomeClientProps {
-  currentChallenge: { prompt: string; challengeDate: string } | null;
+  currentChallenge: { prompt: string; challengeDate: string; isOpen: boolean } | null;
   previousChallenges: Challenge[];
   leaderboard: LeaderboardRow[];
   eligibleDesignerCount: number;
@@ -316,7 +316,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
             />
           </div>
           <div style={{ animation: "hero-item-reveal 0.7s cubic-bezier(0.23, 1, 0.32, 1) both" }}>
-            <SectionLabel right={currentChallenge && !challengeExpired ? <Badge variant="positive" label="Active" /> : <Badge variant="negative" label="Closed" />}>Current challenge</SectionLabel>
+            <SectionLabel right={currentChallenge?.isOpen && !challengeExpired ? <Badge variant="positive" label="Active" /> : <Badge variant="negative" label="Closed" />}>Current challenge</SectionLabel>
           </div>
 
           {currentChallenge ? (
