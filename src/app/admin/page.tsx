@@ -1195,13 +1195,15 @@ export default function AdminPage() {
                       style={{ boxShadow: "var(--shadow-default)" }}
                     >
                       <div className="flex flex-col gap-3 min-w-0 flex-1">
-                        <div className="flex items-center gap-3">
-                          <p className="text-sm text-fg-muted">{formatDate(challenge.challenge_date)}</p>
-                          {challenge.status === "open" && (
-                            <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>
-                          )}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-3">
+                            <p className="text-sm text-fg-muted">{formatDate(challenge.challenge_date)}</p>
+                            {challenge.status === "open" && (
+                              <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-fg-primary">{challenge.prompt ?? <span className="text-fg-muted italic">No prompt set</span>}</p>
                         </div>
-                        <p className="text-sm text-fg-primary">{challenge.prompt ?? <span className="text-fg-muted italic">No prompt set</span>}</p>
                         {challenge.entries.length > 0 && (
                           <div className="flex items-center">
                             {challenge.entries.map((entry, i) => (
