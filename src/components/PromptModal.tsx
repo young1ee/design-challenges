@@ -145,8 +145,8 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
               <div className="overflow-y-auto sm:overflow-visible flex-1">
                 <div className="relative p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
 
-                  {/* Close X button */}
-                  <GlassButton onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center">
+                  {/* Close X button — desktop only */}
+                  <GlassButton onClick={onClose} className="hidden sm:flex absolute top-4 right-4 w-10 h-10 items-center justify-center">
                     <CloseIcon />
                   </GlassButton>
 
