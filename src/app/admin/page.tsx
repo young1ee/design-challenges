@@ -1153,15 +1153,15 @@ export default function AdminPage() {
           )}
 
           {/* Greeting row */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-4">
             <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
 
-            {effectiveIsAdmin && <div className="flex items-center p-1 rounded-full text-sm self-start sm:self-auto" style={{ border: "0.5px solid var(--color-line)" }}>
+            {effectiveIsAdmin && <div className="flex items-center p-1 rounded-full text-sm w-full sm:w-auto" style={{ border: "0.5px solid var(--color-line)" }}>
               {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-1.5 rounded-full capitalize transition-colors duration-150 outline-none ${
+                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full capitalize transition-colors duration-150 outline-none ${
                     activeTab === tab ? "text-fg-primary" : "text-fg-muted hover:text-fg-primary"
                   }`}
                   style={activeTab === tab ? { background: "var(--color-surface)", boxShadow: "var(--shadow-default)" } : {}}
