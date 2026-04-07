@@ -211,9 +211,9 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
       </div>
       <p className="text-xs text-fg-muted text-center">
         {simplified ? (
-          <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
+          <>1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
         ) : (
-          <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
+          <>1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
         )}
       </p>
     </div>
@@ -613,7 +613,7 @@ function OldSeasonLayout({
               </div>
             </div>
             <p className="text-xs text-fg-muted text-center">
-              1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
+              1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
             </p>
           </div>
         )}
