@@ -76,9 +76,9 @@ export default function Nav() {
   }
 
   return (
-    <div className="sticky top-4 sm:top-6 z-40 flex justify-center px-4 sm:px-6">
+    <div className="sticky top-4 sm:top-6 z-40 flex justify-center px-2 sm:px-6">
       <nav
-        className="flex items-center gap-6 px-6 py-3 rounded-full bg-surface/60 backdrop-blur-md"
+        className="flex items-center gap-4 sm:gap-6 px-3 sm:px-6 py-3 rounded-full bg-surface/60 backdrop-blur-md"
         style={{ boxShadow: "var(--shadow-default)" }}
       >
         {/* Logo + season */}
