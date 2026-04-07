@@ -155,19 +155,14 @@ function ChartTooltip(props: any) {
 
 // ─── Leaderboard table ────────────────────────────────────────────────────────
 
-function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNumber: number }) {
-  const simplified = seasonNumber >= 3;
-
-  const cols = simplified
-    ? "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)"
-    : "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)";
-
-  const headers = simplified ? ["Entries", "1st", "Points"] : ["Entries", "1st", "2nd", "3rd", "Points"];
+function Leaderboard({ data }: { data: LeaderboardRow[] }) {
+  const cols = "fit-content(100%) minmax(0,1fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr) minmax(0,0.2fr)";
+  const headers = ["Entries", "1st", "2nd", "3rd", "Points"];
 
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="w-full overflow-x-auto">
-        <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px", minWidth: simplified ? 320 : 420 }}>
+        <div style={{ display: "grid", gridTemplateColumns: cols, rowGap: "2px", minWidth: 420 }}>
           <div className="contents">
             <div className="pl-3 pr-0 py-1.5"><span className="text-xs text-fg-muted">#</span></div>
             <div className="px-3 py-1.5"><span className="text-xs text-fg-muted">Designer</span></div>
@@ -179,9 +174,7 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
           </div>
 
           {data.map((row, i) => {
-            const cells = simplified
-              ? [row.entries, row.first]
-              : [row.entries, row.first, row.second, row.third];
+            const cells = [row.entries, row.first, row.second, row.third];
             return (
               <div key={row.name} className="contents">
                 <div className="pl-3 pr-0 py-2.5 flex items-center rounded-l-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
@@ -210,11 +203,7 @@ function Leaderboard({ data, seasonNumber }: { data: LeaderboardRow[]; seasonNum
         </div>
       </div>
       <p className="text-xs text-fg-muted text-center">
-        {simplified ? (
-          <>1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
-        ) : (
-          <>1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
-        )}
+        1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
       </p>
     </div>
   );
@@ -365,7 +354,7 @@ function Season3Layout({
             {/* Leaderboard */}
             <div className="w-full p-5 rounded-2xl bg-surface flex flex-col gap-4" style={{ boxShadow: "var(--shadow-default)" }}>
               <p className="text-base text-fg-secondary">Leaderboard</p>
-              <Leaderboard data={leaderboard} seasonNumber={seasonNumber} />
+              <Leaderboard data={leaderboard} />
             </div>
 
             {/* Stat cards */}
