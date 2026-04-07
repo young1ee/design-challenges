@@ -7,6 +7,7 @@ import Nav from "@/components/Nav";
 import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
 import { inviteDesigner } from "@/app/actions/invite";
+import { linkDesignerAccount } from "@/app/actions/link-designer";
 import { setAuthRole } from "@/app/actions/role";
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
@@ -879,7 +880,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
           </button>
         </div>}
       </div>
-      <div className="border-t border-line" />
+      {!isSelf && <div className="border-t" style={{ borderColor: "var(--color-line)" }} />}
 
       {!isSelf && (
         designer.auth_user_id && !inviteStatus?.ok
@@ -1078,6 +1079,8 @@ export default function AdminPage() {
       const slug = email.split("@")[0].split(".")[0].toLowerCase();
       const { data } = await supabase.from("designers").select("id").eq("slug", slug).maybeSingle();
       if (data) setMyDesignerId(data.id);
+      // Auto-link auth account to designer row if not yet set
+      if (session) linkDesignerAccount();
     });
   }, []);
 
