@@ -1131,7 +1131,7 @@ export default function AdminPage() {
 
   return (
     <div className="flex flex-col items-center gap-12 py-12 sm:gap-20 sm:py-20 min-h-screen">
-      <style>{`*, *::before, *::after { cursor: auto !important; } button, a { cursor: pointer !important; }`}</style>
+      <style>{`*, *::before, *::after { cursor: auto !important; } button, a, button *, a * { cursor: pointer !important; }`}</style>
       <Nav />
 
       <PageTransition>
