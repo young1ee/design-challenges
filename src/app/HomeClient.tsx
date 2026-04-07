@@ -231,10 +231,7 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
     </div>
     </div>
     <p className="text-xs text-fg-muted text-center w-full">
-      {isMobile
-        ? <>1st · 10pts <span className="mx-1" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
-        : <>1st · 10pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts</>
-      }
+      1st · 10pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 2nd · 6pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> 3rd · 4pts <span className="mx-1 sm:mx-2" style={{ color: "var(--color-line)" }}>/</span> Entry · 2pts
     </p>
     </div>
   );
