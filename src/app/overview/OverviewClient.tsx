@@ -192,6 +192,13 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
 export default function OverviewClient({ stats, designers, photos }: OverviewClientProps) {
   const active = designers.filter((d) => d.isActive);
   const former = designers.filter((d) => !d.isActive);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-12 py-12 sm:gap-20 sm:py-20 min-h-screen">
@@ -252,13 +259,19 @@ export default function OverviewClient({ stats, designers, photos }: OverviewCli
             <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
           </div>
 
-          {[
+          {(isMobile ? [
+            { left: "2%",  top: "2%",  rotate: -4, width: 155 },
+            { left: "38%", top: "0%",  rotate:  3, width: 150 },
+            { left: "58%", top: "10%", rotate: -2, width: 140 },
+            { left: "4%",  top: "48%", rotate:  2, width: 155 },
+            { left: "44%", top: "44%", rotate: -3, width: 145 },
+          ] : [
             { left: "0%",  top: "10%", rotate: -4, width: 220 },
             { left: "18%", top: "0%",  rotate:  3, width: 240 },
             { left: "38%", top: "8%",  rotate: -2, width: 200 },
             { left: "56%", top: "2%",  rotate:  5, width: 230 },
             { left: "72%", top: "12%", rotate: -3, width: 210 },
-          ].map((photo, i) => (
+          ]).map((photo, i) => (
             <motion.div
               key={i}
               drag
