@@ -21,7 +21,7 @@ export default function DotGrid({
   gap = 28,
   dotSize = 1.5,
   color = "#9333ea",
-  restColor = "#39ff3e",
+  restColor = "var(--color-accent)",
   repelRadius = 80,
   repelStrength = 5,
   className,
@@ -53,6 +53,13 @@ export default function DotGrid({
     }
 
     buildGrid();
+
+    const resolveColor = (c: string) =>
+      c.startsWith("var(--")
+        ? getComputedStyle(document.documentElement).getPropertyValue(c.slice(4, -1)).trim()
+        : c;
+    const resolvedRestColor = resolveColor(restColor);
+    const resolvedColor = resolveColor(color);
 
     const onMouseMove = (e: MouseEvent) => {
       const rect = canvas!.getBoundingClientRect();
@@ -92,8 +99,8 @@ export default function DotGrid({
         const opacity = 0.22 + t * 0.45;
         const radius = dotSize + t * 0.6;
 
-        const [r1, g1, b1] = hexToRgb(restColor);
-        const [r2, g2, b2] = hexToRgb(color);
+        const [r1, g1, b1] = hexToRgb(resolvedRestColor);
+        const [r2, g2, b2] = hexToRgb(resolvedColor);
         const r = Math.round(r1 + (r2 - r1) * t);
         const g = Math.round(g1 + (g2 - g1) * t);
         const b = Math.round(b1 + (b2 - b1) * t);

@@ -12,6 +12,7 @@ import Badge from "@/components/Badge";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import PromptCard from "@/components/PromptCard";
+import Avatar from "@/components/Avatar";
 import PromptModal from "@/components/PromptModal";
 import PageTransition from "@/components/PageTransition";
 import Globe from "@/components/Globe";
@@ -195,34 +196,29 @@ function Leaderboard({ data }: { data: LeaderboardRow[] }) {
           <div key={row.name} className="contents">
             <div
               className="pr-0 py-2.5 flex items-center rounded-l-lg"
-              style={{ paddingLeft: "12px", background: "rgba(180,188,208,0.04)" }}
+              style={{ paddingLeft: "12px", background: "var(--color-line-faint)" }}
             >
               <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
             </div>
             <div
               className="px-2 sm:px-3 py-2.5 flex items-center gap-2"
-              style={{ background: "rgba(180,188,208,0.04)" }}
+              style={{ background: "var(--color-line-faint)" }}
             >
-              <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-                {row.avatarUrl
-                  ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
-                  : row.name.slice(0, 2).toUpperCase()
-                }
-              </div>
+              <Avatar name={row.name} src={row.avatarUrl} className="w-5 h-5 text-[10px]" />
               <span className="text-sm text-fg-primary">{row.name}</span>
             </div>
             {cells.map((val, j) => (
               <div
                 key={j}
                 className="px-2 sm:px-3 py-2.5 flex items-center justify-center"
-                style={{ background: "rgba(180,188,208,0.04)" }}
+                style={{ background: "var(--color-line-faint)" }}
               >
                 <span className="text-sm text-fg-secondary tabular-nums">{val}</span>
               </div>
             ))}
             <div
               className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg"
-              style={{ background: "rgba(180,188,208,0.04)" }}
+              style={{ background: "var(--color-line-faint)" }}
             >
               <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
             </div>
@@ -284,22 +280,26 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
     value: Math.round((c.entries.length / Math.max(eligibleDesignerCount, 1)) * 100),
   }));
 
-  // Aggregate by month (oldest → newest) for charts
+  // Aggregate by month for charts
   const monthEntries: Record<string, number> = {};
   const monthPoints: Record<string, number> = {};
-  const monthOrder: string[] = [];
 
-  for (const c of [...previousChallenges].reverse()) {
+  for (const c of previousChallenges) {
     const { month } = c;
-    if (!monthOrder.includes(month)) monthOrder.push(month);
     monthEntries[month] = (monthEntries[month] ?? 0) + c.entries.length;
     monthPoints[month] = (monthPoints[month] ?? 0) +
       c.podium.reduce((sum, p) => sum + p.points, 0) +
       Math.max(0, c.entries.length - c.podium.length) * 2;
   }
 
-  const entriesPerChallenge = monthOrder.map((month) => ({ month, value: monthEntries[month] }));
-  const pointsPerChallenge  = monthOrder.map((month) => ({ month, value: monthPoints[month] }));
+  // Build full month range — fill gaps, extend to current month (home is always active season)
+  const ALL_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dataIndices = Object.keys(monthEntries).map(m => ALL_MONTHS.indexOf(m)).filter(i => i >= 0);
+  const maxIdx = Math.max(dataIndices.length ? Math.max(...dataIndices) : 0, new Date().getMonth());
+  const fullMonthRange = ALL_MONTHS.slice(0, maxIdx + 1);
+
+  const entriesPerChallenge = fullMonthRange.map((month) => ({ month, value: monthEntries[month] ?? 0 }));
+  const pointsPerChallenge  = fullMonthRange.map((month) => ({ month, value: monthPoints[month] ?? 0 }));
 
   const avgCompletion = completionTrend.length > 0
     ? Math.round(completionTrend.reduce((sum, d) => sum + d.value, 0) / completionTrend.length)
@@ -317,7 +317,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
         {/* Hero — current challenge */}
         <section className="relative flex flex-col gap-6 items-center text-center">
           <div className="absolute pointer-events-none" style={{ top: "-200px", bottom: "-120px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)" }}>
-            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} restColor="#39ff3e" color="#9333ea" className="w-full h-full" />
+            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} color="#9333ea" className="w-full h-full" />
             <div
               className="absolute inset-0"
               style={{
@@ -445,9 +445,9 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={pointsPerChallenge} margin={{ top: 0, right: 12, left: 12, bottom: 0 }} barSize={16}>
                             <YAxis hide domain={[0, 'dataMax']} />
-                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#687991' }} height={18} />
+                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--color-fg-muted)' }} height={18} />
                             <Tooltip content={(p) => <ChartTooltip {...p} format={(v: number) => `${v} pts`} />} cursor={false} />
-                            <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "#39ff3e", fillOpacity: 0.5, radius: 4 as unknown as number }} />
+                            <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "var(--color-accent)", fillOpacity: 0.5, radius: 4 as unknown as number }} />
                           </BarChart>
                         </ResponsiveContainer>
                       )}
@@ -473,7 +473,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                               </linearGradient>
                             </defs>
                             <YAxis hide domain={[0, 'dataMax']} />
-                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#687991' }} height={18} padding={{ left: 20, right: 20 }} />
+                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--color-fg-muted)' }} height={18} padding={{ left: 20, right: 20 }} />
                             <Tooltip content={(p) => <ChartTooltip {...p} />} cursor={{ stroke: "rgba(148,163,184,0.1)" }} />
                             <Area type="monotone" dataKey="value" stroke="var(--color-accent)" strokeWidth={1.5} fill="url(#grad-entries)" dot={false} />
                           </AreaChart>
@@ -502,7 +502,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
 
         <div className="relative w-full" style={{ height: 520 * globeScale }}>
           <div className="absolute pointer-events-none" style={{ top: 0, bottom: "-300px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}>
-            <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
+            <Particles quantity={150} className="w-full h-full" />
           </div>
 
           <div

@@ -29,6 +29,7 @@
 
   --color-danger:             #f87171;
   --color-danger-foreground:  #450a0a;
+  --color-danger-faint:       rgba(248, 113, 113, 0.08);
 
 }
 

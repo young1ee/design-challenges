@@ -3,6 +3,7 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import SectionLabel from "@/components/SectionLabel";
 import EntryCard from "@/components/EntryCard";
+import Avatar from "@/components/Avatar";
 import { getDesigner, getDesignerHistory, getSeasonLeaderboard } from "@/lib/db/queries";
 
 // ─── Placement badge ──────────────────────────────────────────────────────────
@@ -82,9 +83,7 @@ export default async function DesignerProfilePage({
 
         {/* Profile header */}
         <div className="p-8 rounded-2xl bg-surface flex gap-8 items-start" style={{ boxShadow: "var(--shadow-default)" }}>
-          <div className="w-20 h-20 rounded-full bg-elevated flex items-center justify-center text-xl text-fg-secondary font-medium shrink-0">
-            {designer.name.slice(0, 2).toUpperCase()}
-          </div>
+          <Avatar name={designer.name} className="w-20 h-20 text-xl" />
           <div className="flex flex-col gap-3 flex-1">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-medium text-fg-primary leading-9">{designer.name}</h1>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import Avatar from "./Avatar";
 
 function ArrowUpRightIcon() {
   return (
@@ -51,7 +52,7 @@ export default function EntryCard({
             className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             style={{
               padding: "1px",
-              background: "radial-gradient(ellipse at 0% 0%, #39ff3e 0%, transparent 60%)",
+              background: "radial-gradient(ellipse at 0% 0%, var(--color-accent) 0%, transparent 60%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "destination-out",
@@ -85,15 +86,10 @@ export default function EntryCard({
       </motion.div>
 
       {/* Meta: title + author side by side */}
-      <div className="flex items-start gap-1 px-2">
+      <div className="flex items-start gap-3 px-2">
         <p className="flex-1 text-sm text-fg-secondary min-w-0">{title}</p>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-            {authorAvatarUrl
-              ? <img src={authorAvatarUrl} alt={author} className="w-full h-full object-cover" />
-              : author.slice(0, 2).toUpperCase()
-            }
-          </div>
+          <Avatar name={author} src={authorAvatarUrl} className="w-5 h-5 text-[10px]" />
           <span className="text-sm text-fg-primary whitespace-nowrap">{author}</span>
         </div>
       </div>

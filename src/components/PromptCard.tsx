@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import Avatar from "./Avatar";
 
 interface PromptCardProps {
   id: string;
@@ -49,12 +50,7 @@ export default function PromptCard({
         <div className="flex-1 flex flex-col gap-1">
           <p className="text-sm text-fg-muted">Winner</p>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-              {winnerAvatarUrl
-                ? <img src={winnerAvatarUrl} alt={winner} className="w-full h-full object-cover" />
-                : winner.slice(0, 2).toUpperCase()
-              }
-            </div>
+            <Avatar name={winner} src={winnerAvatarUrl} className="w-8 h-8 text-[10px]" />
             <span className="text-sm text-fg-primary">{winner}</span>
           </div>
         </div>

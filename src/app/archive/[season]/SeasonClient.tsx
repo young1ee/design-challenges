@@ -16,6 +16,7 @@ import PromptModal from "@/components/PromptModal";
 import PageTransition from "@/components/PageTransition";
 import Particles from "@/components/Particles";
 import DotGrid from "@/components/DotGrid";
+import Avatar from "@/components/Avatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -188,24 +189,19 @@ function Leaderboard({ data, simplified = false }: { data: LeaderboardRow[]; sim
             const cells = simplified ? [row.entries, row.first] : [row.entries, row.first, row.second, row.third];
             return (
               <div key={row.name} className="contents">
-                <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "rgba(180,188,208,0.04)" }}>
+                <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "var(--color-line-faint)" }}>
                   <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                 </div>
-                <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
-                  <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-                    {row.avatarUrl
-                      ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
-                      : row.name.slice(0, 2).toUpperCase()
-                    }
-                  </div>
+                <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "var(--color-line-faint)" }}>
+                  <Avatar name={row.name} src={row.avatarUrl} className="w-5 h-5 text-[10px]" />
                   <span className="text-sm text-fg-primary">{row.name}</span>
                 </div>
                 {cells.map((val, j) => (
-                  <div key={j} className="px-2 sm:px-3 py-2.5 flex items-center justify-center" style={{ background: "rgba(180,188,208,0.04)" }}>
+                  <div key={j} className="px-2 sm:px-3 py-2.5 flex items-center justify-center" style={{ background: "var(--color-line-faint)" }}>
                     <span className="text-sm text-fg-secondary tabular-nums">{val}</span>
                   </div>
                 ))}
-                <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "var(--color-line-faint)" }}>
                   <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
                 </div>
               </div>
@@ -255,7 +251,7 @@ function Season3Layout({
         particleCount: 60,
         spread: 55,
         startVelocity: 45,
-        colors: ["#39ff3e", "#372165", "#fbbf24"],
+        colors: ["var(--color-accent)", "#372165", "#fbbf24"],
         ticks: 200,
         gravity: 0.9,
         scalar: 0.9,
@@ -270,15 +266,13 @@ function Season3Layout({
   const totalPoints = leaderboard.reduce((sum, d) => sum + d.points, 0);
   const totalEntries = leaderboard.reduce((sum, d) => sum + d.entries, 0);
 
-  // Aggregate chart data by month (oldest → newest)
+  // Aggregate chart data by month
   const monthEntries: Record<string, number> = {};
   const monthPoints: Record<string, number> = {};
   const monthChallenges: Record<string, number> = {};
-  const monthOrder: string[] = [];
 
-  for (const c of [...challenges].reverse()) {
+  for (const c of challenges) {
     const { month } = c;
-    if (!monthOrder.includes(month)) monthOrder.push(month);
     monthEntries[month] = (monthEntries[month] ?? 0) + c.entries.length;
     monthPoints[month] = (monthPoints[month] ?? 0) +
       c.podium.reduce((sum, p) => sum + p.points, 0) +
@@ -286,9 +280,18 @@ function Season3Layout({
     monthChallenges[month] = (monthChallenges[month] ?? 0) + 1;
   }
 
-  const entriesPerMonth    = monthOrder.map((month) => ({ month, value: monthEntries[month] }));
-  const pointsPerMonth     = monthOrder.map((month) => ({ month, value: monthPoints[month] }));
-  const challengesPerMonth = monthOrder.map((month) => ({ month, value: monthChallenges[month] }));
+  // Build full month range — fill gaps, extend to current month if season is active
+  const ALL_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dataIndices = Object.keys(monthEntries).map(m => ALL_MONTHS.indexOf(m)).filter(i => i >= 0);
+  const now = new Date();
+  const isActive = year >= now.getFullYear();
+  const maxDataIdx = dataIndices.length ? Math.max(...dataIndices) : 0;
+  const maxIdx = isActive ? Math.max(maxDataIdx, now.getMonth()) : maxDataIdx;
+  const fullMonthRange = ALL_MONTHS.slice(0, maxIdx + 1);
+
+  const entriesPerMonth    = fullMonthRange.map((month) => ({ month, value: monthEntries[month] ?? 0 }));
+  const pointsPerMonth     = fullMonthRange.map((month) => ({ month, value: monthPoints[month] ?? 0 }));
+  const challengesPerMonth = fullMonthRange.map((month) => ({ month, value: monthChallenges[month] ?? 0 }));
 
   const completionTrend = challenges.map((c) => ({
     value: Math.round((c.entries.length / Math.max(eligibleDesignerCount, 1)) * 100),
@@ -304,24 +307,19 @@ function Season3Layout({
       {champion && (
         <section ref={heroRef} className="relative flex flex-col items-center gap-6 text-center">
           <div className="absolute pointer-events-none" style={{ top: "-120px", bottom: "-120px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: -1 }}>
-            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} restColor="#39ff3e" color="#9333ea" className="w-full h-full" />
+            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} color="#9333ea" className="w-full h-full" />
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, transparent 20%, var(--color-canvas) 80%)" }} />
           </div>
           <div
             className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full"
             style={{ border: "0.5px solid var(--color-line)" }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-fg-muted">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "var(--color-warning)" }}>
               <path d="M8 21h8M12 17v4M7 4H4v4a5 5 0 0 0 3 4.58M17 4h3v4a5 5 0 0 1-3 4.58M12 17a5 5 0 0 1-5-5V4h10v8a5 5 0 0 1-5 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="text-sm text-fg-muted">{year} Champion</span>
+            <span className="text-sm" style={{ color: "var(--color-warning)" }}>{year} Champion</span>
           </div>
-          <div className="relative z-10 w-[120px] h-[120px] rounded-full bg-elevated flex items-center justify-center text-2xl text-fg-muted font-medium overflow-hidden">
-            {champion.avatarUrl
-              ? <img src={champion.avatarUrl} alt={champion.name} className="w-full h-full object-cover" />
-              : champion.name.slice(0, 2).toUpperCase()
-            }
-          </div>
+          <Avatar name={champion.name} src={champion.avatarUrl} className="relative z-10 w-[120px] h-[120px] text-2xl" />
           <p className="text-[36px] text-fg-primary leading-10 tracking-[-0.8px]">{champion.name}</p>
           <div className="flex items-start justify-center gap-12">
             {[
@@ -386,9 +384,9 @@ function Season3Layout({
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={challengesPerMonth} margin={{ top: 0, right: 12, left: 12, bottom: 0 }} barSize={16}>
                           <YAxis hide domain={[0, "dataMax"]} />
-                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#687991" }} height={18} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-fg-muted)" }} height={18} />
                           <Tooltip content={(p) => <ChartTooltip {...p} format={(v: number) => `${v} challenge${v !== 1 ? "s" : ""}`} />} cursor={false} />
-                          <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "#39ff3e", fillOpacity: 0.5, radius: 4 as unknown as number }} />
+                          <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "var(--color-accent)", fillOpacity: 0.5, radius: 4 as unknown as number }} />
                         </BarChart>
                       </ResponsiveContainer>
                     )}
@@ -408,9 +406,9 @@ function Season3Layout({
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={pointsPerMonth} margin={{ top: 0, right: 12, left: 12, bottom: 0 }} barSize={16}>
                           <YAxis hide domain={[0, "dataMax"]} />
-                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#687991" }} height={18} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-fg-muted)" }} height={18} />
                           <Tooltip content={(p) => <ChartTooltip {...p} format={(v: number) => `${v} pts`} />} cursor={false} />
-                          <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "#39ff3e", fillOpacity: 0.5, radius: 4 as unknown as number }} />
+                          <Bar dataKey="value" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "var(--color-accent)", fillOpacity: 0.5, radius: 4 as unknown as number }} />
                         </BarChart>
                       </ResponsiveContainer>
                     )}
@@ -436,7 +434,7 @@ function Season3Layout({
                             </linearGradient>
                           </defs>
                           <YAxis hide domain={[0, "dataMax"]} />
-                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#687991" }} height={18} padding={{ left: 20, right: 20 }} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-fg-muted)" }} height={18} padding={{ left: 20, right: 20 }} />
                           <Tooltip content={(p) => <ChartTooltip {...p} />} cursor={{ stroke: "rgba(148,163,184,0.1)" }} />
                           <Area type="monotone" dataKey="value" stroke="var(--color-accent)" strokeWidth={1.5} fill="url(#grad-season-entries)" dot={false} />
                         </AreaChart>
@@ -467,7 +465,7 @@ function Season3Layout({
 
       <div className="relative w-full" style={{ height: 80 }}>
         <div className="absolute pointer-events-none" style={{ top: "-80px", bottom: "-120px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}>
-          <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
+          <Particles quantity={150} className="w-full h-full" />
         </div>
       </div>
 
@@ -495,7 +493,7 @@ function OldSeasonLayout({
         particleCount: 60,
         spread: 55,
         startVelocity: 45,
-        colors: ["#39ff3e", "#372165", "#fbbf24"],
+        colors: ["var(--color-accent)", "#372165", "#fbbf24"],
         ticks: 200,
         gravity: 0.9,
         scalar: 0.9,
@@ -531,24 +529,19 @@ function OldSeasonLayout({
       {champion && (
         <section ref={heroRef} className="relative flex flex-col items-center gap-6 text-center">
           <div className="absolute pointer-events-none" style={{ top: "-120px", bottom: "-120px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: -1 }}>
-            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} restColor="#39ff3e" color="#9333ea" className="w-full h-full" />
+            <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} color="#9333ea" className="w-full h-full" />
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, transparent 20%, var(--color-canvas) 80%)" }} />
           </div>
           <div
             className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full"
             style={{ border: "0.5px solid var(--color-line)" }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-fg-muted">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "var(--color-warning)" }}>
               <path d="M8 21h8M12 17v4M7 4H4v4a5 5 0 0 0 3 4.58M17 4h3v4a5 5 0 0 1-3 4.58M12 17a5 5 0 0 1-5-5V4h10v8a5 5 0 0 1-5 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="text-sm text-fg-muted">{year} Champion</span>
+            <span className="text-sm" style={{ color: "var(--color-warning)" }}>{year} Champion</span>
           </div>
-          <div className="relative z-10 w-[120px] h-[120px] rounded-full bg-elevated flex items-center justify-center text-2xl text-fg-muted font-medium overflow-hidden">
-            {champion.avatarUrl
-              ? <img src={champion.avatarUrl} alt={champion.name} className="w-full h-full object-cover" />
-              : champion.name.slice(0, 2).toUpperCase()
-            }
-          </div>
+          <Avatar name={champion.name} src={champion.avatarUrl} className="relative z-10 w-[120px] h-[120px] text-2xl" />
           <p className="text-[36px] text-fg-primary leading-10 tracking-[-0.8px]">{champion.name}</p>
         </section>
       )}
@@ -603,19 +596,14 @@ function OldSeasonLayout({
                 {/* Rows */}
                 {leaderboard.map((row, i) => (
                   <div key={row.name} className="contents">
-                    <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "rgba(180,188,208,0.04)" }}>
+                    <div className="pr-0 py-2.5 flex items-center rounded-l-lg" style={{ paddingLeft: "12px", background: "var(--color-line-faint)" }}>
                       <span className="text-xs text-fg-muted tabular-nums">{i + 1}.</span>
                     </div>
-                    <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "rgba(180,188,208,0.04)" }}>
-                      <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-                        {row.avatarUrl
-                          ? <img src={row.avatarUrl} alt={row.name} className="w-full h-full object-cover" />
-                          : row.name.slice(0, 2).toUpperCase()
-                        }
-                      </div>
+                    <div className="px-2 sm:px-3 py-2.5 flex items-center gap-2" style={{ background: "var(--color-line-faint)" }}>
+                      <Avatar name={row.name} src={row.avatarUrl} className="w-5 h-5 text-[10px]" />
                       <span className="text-sm text-fg-primary">{row.name}</span>
                     </div>
-                    <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "rgba(180,188,208,0.04)" }}>
+                    <div className="px-2 sm:px-3 py-2.5 flex items-center justify-center rounded-r-lg" style={{ background: "var(--color-line-faint)" }}>
                       <span className="text-sm text-fg-primary tabular-nums">{row.points}</span>
                     </div>
                   </div>
@@ -633,7 +621,7 @@ function OldSeasonLayout({
 
       <div className="relative w-full" style={{ height: 80 }}>
         <div className="absolute pointer-events-none" style={{ top: "-80px", bottom: "-120px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}>
-          <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
+          <Particles quantity={150} className="w-full h-full" />
         </div>
       </div>
 

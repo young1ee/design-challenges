@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
+import Avatar from "@/components/Avatar";
 import SectionLabel from "@/components/SectionLabel";
 import { getSeasonLeaderboard } from "@/lib/db/queries";
 
@@ -25,9 +26,7 @@ function DesignerCard({ designer, rank }: {
       style={{ boxShadow: "var(--shadow-default)" }}
     >
       <div className="flex items-start justify-between">
-        <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center text-sm text-fg-secondary font-medium">
-          {designer.name.slice(0, 2).toUpperCase()}
-        </div>
+        <Avatar name={designer.name} className="w-12 h-12 text-sm" />
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-elevated">
           <span className="text-xs text-fg-muted tabular-nums">#{rank}</span>
           <RankBadge rank={rank} />

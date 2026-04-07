@@ -61,7 +61,7 @@ export default function LoginPage() {
               className="absolute pointer-events-none"
               style={{ left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", top: 0, height: "400px", zIndex: 0 }}
             >
-              <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
+              <Particles quantity={150} className="w-full h-full" />
             </div>
 
             <div

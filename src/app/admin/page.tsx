@@ -8,6 +8,8 @@ import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
 import { inviteDesigner } from "@/app/actions/invite";
 import { linkDesignerAccount } from "@/app/actions/link-designer";
+import GlassButton from "@/components/GlassButton";
+import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
@@ -167,9 +169,6 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   );
 }
 
-const glassBtn = "flex items-center justify-center px-4 py-2.5 rounded-lg text-sm bg-[var(--color-glass-subtle)] hover:bg-[var(--color-glass-hover)] text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97] cursor-pointer outline-none";
-const ghostBtn = "flex items-center justify-center px-4 py-2.5 rounded-lg text-sm hover:bg-[var(--color-glass-subtle)] text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97] cursor-pointer outline-none";
-const glassStyle = { boxShadow: "var(--shadow-btn)" };
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const currentYear = new Date().getFullYear();
@@ -250,9 +249,9 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
           >
             <div className="flex items-center justify-between gap-4">
               <p className="text-base text-fg-secondary flex-1 min-w-0">{title}</p>
-              <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-lg shrink-0 bg-[var(--color-glass-subtle)] hover:bg-[var(--color-glass-hover)] text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97] cursor-pointer outline-none" style={glassStyle}>
+              <GlassButton onClick={onClose} className="w-10 h-10 shrink-0">
                 <CloseIcon />
-              </button>
+              </GlassButton>
             </div>
             {children}
           </motion.div>
@@ -311,9 +310,9 @@ function NewChallengeModal({ designers, seasons, onClose, onSaved }: {
         </Select>
       </FieldGroup>
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -423,12 +422,12 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
         </FieldGroup>
       ))}
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
-      <button className={`${ghostBtn} w-full text-danger hover:text-danger hover:bg-[rgba(248,113,113,0.08)]`} onClick={handleDelete}>
+      </GlassButton>
+      <GlassButton variant="ghost" className="px-4 py-2.5 text-sm w-full text-danger hover:text-danger hover:bg-[var(--color-danger-faint)]" onClick={handleDelete}>
         Delete challenge
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -494,9 +493,9 @@ function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChalleng
         </FieldGroup>
       ))}
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -594,9 +593,9 @@ function SubmitEntryModal({ challenge, myDesignerId, onClose, onSaved }: {
         <Input type="url" placeholder="https://…" value={figmaUrl} onChange={(e) => setFigmaUrl(e.target.value)} />
       </FieldGroup>
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -665,12 +664,12 @@ function EditEntryModal({ entry, onClose, onSaved }: {
         <Input type="url" value={figmaUrl} onChange={(e) => setFigmaUrl(e.target.value)} />
       </FieldGroup>
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
-      <button className={`${ghostBtn} w-full text-danger hover:text-danger hover:bg-[rgba(248,113,113,0.08)]`} onClick={handleDelete}>
+      </GlassButton>
+      <GlassButton variant="ghost" className="px-4 py-2.5 text-sm w-full text-danger hover:text-danger hover:bg-[var(--color-danger-faint)]" onClick={handleDelete}>
         Delete entry
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -735,16 +734,16 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
           }
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-        <button onClick={() => fileRef.current?.click()} className={glassBtn} style={glassStyle}>Set avatar</button>
+        <GlassButton onClick={() => fileRef.current?.click()} className="px-4 py-2.5 text-sm">Set avatar</GlassButton>
       </div>
       <FieldGroup label="Name"><Input type="text" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} /></FieldGroup>
       <FieldGroup label="Email"><Input type="email" placeholder="name.lastname@nortal.com" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldGroup>
       <FieldGroup label="Location"><Input type="text" placeholder="City, Country" value={location} onChange={(e) => setLocation(e.target.value)} /></FieldGroup>
       <FieldGroup label="Started in Nortal"><MonthYearPicker value={started} onChange={setStarted} /></FieldGroup>
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -839,7 +838,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
           }
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-        <button onClick={() => fileRef.current?.click()} className={glassBtn} style={glassStyle}>Edit avatar</button>
+        <GlassButton onClick={() => fileRef.current?.click()} className="px-4 py-2.5 text-sm">Edit avatar</GlassButton>
       </div>
       <FieldGroup label="Name"><Input type="text" value={name} onChange={(e) => setName(e.target.value)} /></FieldGroup>
       <FieldGroup label="Location"><Input type="text" value={location} onChange={(e) => setLocation(e.target.value)} /></FieldGroup>
@@ -895,14 +894,13 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
                   onChange={(e) => setInviteEmail(e.target.value)}
                   className="flex-1"
                 />
-                <button
-                  className={glassBtn}
-                  style={glassStyle}
+                <GlassButton
+                  className="px-4 py-2.5 text-sm"
                   onClick={handleInvite}
                   disabled={!inviteEmail || inviting}
                 >
                   {inviting ? "Sending…" : "Send invite"}
-                </button>
+                </GlassButton>
               </div>
               {inviteStatus && (
                 <p className={`text-xs ${inviteStatus.ok ? "text-success" : "text-danger"}`}>
@@ -913,9 +911,9 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
       )}
 
       {error && <p className="text-xs text-danger">{error}</p>}
-      <button className={`${glassBtn} w-full`} style={glassStyle} onClick={handleSave} disabled={saving}>
+      <GlassButton className="px-4 py-2.5 text-sm w-full" onClick={handleSave} disabled={saving}>
         {saving ? "Saving…" : "Save"}
-      </button>
+      </GlassButton>
     </ModalShell>
   );
 }
@@ -1182,9 +1180,9 @@ export default function AdminPage() {
             <>
               <div className="flex items-center justify-between gap-4">
                 <YearDropdown value={selectedYear} onChange={setSelectedYear} />
-                {effectiveIsAdmin && <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-challenge" })}>
+                {effectiveIsAdmin && <GlassButton className="px-4 py-2.5 text-sm" onClick={() => setModal({ kind: "new-challenge" })}>
                   New challenge
-                </button>}
+                </GlassButton>}
               </div>
 
               <div className="flex flex-col gap-4">
@@ -1212,17 +1210,13 @@ export default function AdminPage() {
                         {challenge.entries.length > 0 && (
                           <div className="flex items-center">
                             {challenge.entries.map((entry, i) => (
-                              <div
+                              <Avatar
                                 key={entry.id}
-                                title={entry.designer?.name ?? "Unknown"}
-                                className="w-7 h-7 rounded-full bg-elevated flex items-center justify-center text-[10px] font-medium text-fg-muted overflow-hidden"
+                                name={entry.designer?.name ?? "?"}
+                                src={entry.designer?.avatar_url}
+                                className="w-7 h-7 text-[10px]"
                                 style={{ marginLeft: i === 0 ? 0 : -6, zIndex: i, boxShadow: "0 0 0 1.5px var(--color-surface)" }}
-                              >
-                                {entry.designer?.avatar_url
-                                  ? <img src={entry.designer.avatar_url} alt={entry.designer.name} className="w-full h-full object-cover" />
-                                  : (entry.designer?.name ?? "?").slice(0, 2).toUpperCase()
-                                }
-                              </div>
+                              />
                             ))}
                           </div>
                         )}
@@ -1245,21 +1239,19 @@ export default function AdminPage() {
                         const effectiveId = viewingAs?.id ?? myDesignerId;
                         const myEntry = effectiveId ? challenge.entries.find((e) => e.designer_id === effectiveId) : null;
                         return myEntry ? (
-                          <button
-                            className={`${glassBtn} shrink-0`}
-                            style={glassStyle}
+                          <GlassButton
+                            className="px-4 py-2.5 text-sm shrink-0"
                             onClick={() => setModal({ kind: "edit-entry", challenge, entry: myEntry })}
                           >
                             Edit entry
-                          </button>
+                          </GlassButton>
                         ) : (
-                          <button
-                            className={`${glassBtn} shrink-0`}
-                            style={glassStyle}
+                          <GlassButton
+                            className="px-4 py-2.5 text-sm shrink-0"
                             onClick={() => setModal({ kind: "submit-entry", challenge })}
                           >
                             Submit entry
-                          </button>
+                          </GlassButton>
                         );
                       })()}
                     </div>
@@ -1273,9 +1265,9 @@ export default function AdminPage() {
           {activeTab === "designers" && (
             <>
               {effectiveIsAdmin && <div className="flex justify-end">
-                <button className={glassBtn} style={glassStyle} onClick={() => setModal({ kind: "new-designer" })}>
+                <GlassButton className="px-4 py-2.5 text-sm" onClick={() => setModal({ kind: "new-designer" })}>
                   Add designer
-                </button>
+                </GlassButton>
               </div>}
               <div className="flex flex-col gap-4">
                 {loadingDesigners ? (
@@ -1288,12 +1280,7 @@ export default function AdminPage() {
                       style={{ boxShadow: "var(--shadow-default)" }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center text-sm text-fg-muted font-medium shrink-0 overflow-hidden">
-                          {designer.avatar_url
-                            ? <img src={designer.avatar_url} alt={designer.name} className="w-full h-full object-cover" />
-                            : designer.name.slice(0, 2).toUpperCase()
-                          }
-                        </div>
+                        <Avatar name={designer.name} src={designer.avatar_url} className="w-12 h-12 text-sm" />
                         <div className="flex flex-col min-w-0">
                           <p className={`text-base ${designer.is_active ? "text-fg-primary" : "text-fg-secondary"}`}>{designer.name}</p>
                           <p className="text-sm text-fg-muted">
@@ -1307,19 +1294,19 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {effectiveIsAdmin && <button
-                          className={ghostBtn}
+                        {effectiveIsAdmin && <GlassButton
+                          variant="ghost"
+                          className="px-4 py-2.5 text-sm"
                           onClick={() => { setViewingAs(designer); setActiveTab("challenges"); }}
                         >
                           View as
-                        </button>}
-                        {effectiveIsAdmin && <button
-                          className={glassBtn}
-                          style={glassStyle}
+                        </GlassButton>}
+                        {effectiveIsAdmin && <GlassButton
+                          className="px-4 py-2.5 text-sm"
                           onClick={() => setModal({ kind: "edit-designer", designer })}
                         >
                           Edit
-                        </button>}
+                        </GlassButton>}
                       </div>
                     </div>
                   ))

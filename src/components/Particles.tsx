@@ -17,7 +17,7 @@ interface ParticlesProps {
   className?: string;
 }
 
-export default function Particles({ quantity = 80, color = "#39ff3e", className }: ParticlesProps) {
+export default function Particles({ quantity = 80, color = "var(--color-accent)", className }: ParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouse = useRef({ x: -1000, y: -1000 });
 
@@ -26,6 +26,9 @@ export default function Particles({ quantity = 80, color = "#39ff3e", className 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const resolvedColor = color.startsWith("var(--")
+      ? getComputedStyle(document.documentElement).getPropertyValue(color.slice(4, -1)).trim()
+      : color;
 
     let w = canvas.offsetWidth;
     let h = canvas.offsetHeight;
@@ -69,7 +72,7 @@ export default function Particles({ quantity = 80, color = "#39ff3e", className 
 
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx!.fillStyle = color;
+        ctx!.fillStyle = resolvedColor;
         ctx!.globalAlpha = p.opacity;
         ctx!.fill();
       }

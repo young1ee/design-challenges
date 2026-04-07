@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
 import EntryCard from "./EntryCard";
+import GlassButton from "./GlassButton";
+import Avatar from "./Avatar";
 
 interface PodiumEntry {
   name: string;
@@ -39,25 +41,6 @@ interface PromptModalProps {
 
 const PLACEMENTS = ["winner", "2nd", "3rd"] as const;
 
-function GlassButton({
-  onClick,
-  children,
-  className = "",
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-lg bg-[var(--color-glass-subtle)] hover:bg-[var(--color-glass-hover)] text-fg-secondary hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97] cursor-pointer ${className}`}
-      style={{ boxShadow: "var(--shadow-btn)" }}
-    >
-      {children}
-    </button>
-  );
-}
 
 function CloseIcon() {
   return (
@@ -133,7 +116,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
             <motion.div
               layoutId={`card-${challenge.id}`}
               className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto sm:max-h-none"
-              style={{ maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 24px)', boxShadow: "var(--shadow-modal)" }}
+              style={{ ...(isMobile ? { maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 24px)' } : {}), boxShadow: "var(--shadow-modal)" }}
               onClick={(e) => e.stopPropagation()}
               drag={isMobile ? "y" : false}
               dragControls={dragControls}
@@ -187,7 +170,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                 <div className="relative p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
 
                   {/* Close X button */}
-                  <GlassButton onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center">
+                  <GlassButton onClick={onClose} className="absolute top-4 right-4 w-10 h-10">
                     <CloseIcon />
                   </GlassButton>
 
@@ -203,12 +186,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                         <span className="text-sm text-fg-muted whitespace-nowrap">Master of Ceremony</span>
                         <div className="w-[0.5px] h-5 bg-line shrink-0" />
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-elevated flex items-center justify-center text-[10px] text-fg-muted font-medium shrink-0 overflow-hidden">
-                            {challenge.masterOfCeremonyAvatarUrl
-                              ? <img src={challenge.masterOfCeremonyAvatarUrl} alt={challenge.masterOfCeremony} className="w-full h-full object-cover" />
-                              : challenge.masterOfCeremony.slice(0, 2).toUpperCase()
-                            }
-                          </div>
+                          <Avatar name={challenge.masterOfCeremony} src={challenge.masterOfCeremonyAvatarUrl} className="w-5 h-5 text-[10px]" />
                           <span className="text-sm text-fg-primary whitespace-nowrap">{challenge.masterOfCeremony}</span>
                         </div>
                       </div>
@@ -217,7 +195,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
 
                   {/* Podium */}
                   {podiumCards && podiumCards.length > 0 && (
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-5">
                       <p className="text-base text-fg-primary">Podium</p>
 
                       {podiumCards[0] && (
@@ -232,7 +210,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                       )}
 
                       {podiumCards.slice(1, 3).length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                           {podiumCards.slice(1, 3).map((p, i) => (
                             <EntryCard
                               key={p.name}
@@ -251,9 +229,9 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
 
                   {/* Other entries */}
                   {otherEntries && otherEntries.length > 0 && (
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-5">
                       <p className="text-base text-fg-primary">Other entries</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {otherEntries.map((entry) => (
                           <EntryCard
                             key={entry.id}

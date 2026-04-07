@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { animate, motion, useInView } from "framer-motion";
+import { animate, motion, useInView, useReducedMotion } from "framer-motion";
 import {
   BarChart, Bar,
   AreaChart, Area,
@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
+import Avatar from "@/components/Avatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,9 +101,9 @@ function StatCard({ stat }: { stat: StatItem }) {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stat.trend} margin={{ top: 0, right: 12, left: 12, bottom: 0 }} barSize={14}>
                 <YAxis hide domain={[0, "dataMax"]} />
-                <XAxis dataKey="s" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#687991" }} height={18} />
+                <XAxis dataKey="s" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-fg-muted)" }} height={18} />
                 <Tooltip content={(p) => <ChartTooltip {...p} />} cursor={false} />
-                <Bar dataKey="v" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "#39ff3e", fillOpacity: 0.5, radius: 4 as unknown as number }} />
+                <Bar dataKey="v" fill="var(--color-accent)" fillOpacity={1} radius={4 as unknown as number} activeBar={{ fill: "var(--color-accent)", fillOpacity: 0.5, radius: 4 as unknown as number }} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -116,7 +117,7 @@ function StatCard({ stat }: { stat: StatItem }) {
                   </linearGradient>
                 </defs>
                 <YAxis hide domain={[0, "dataMax"]} />
-                <XAxis dataKey="s" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#687991" }} height={18} padding={{ left: 20, right: 20 }} />
+                <XAxis dataKey="s" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "var(--color-fg-muted)" }} height={18} padding={{ left: 20, right: 20 }} />
                 <Tooltip content={(p) => <ChartTooltip {...p} />} cursor={{ stroke: "rgba(148,163,184,0.1)" }} />
                 <Area type="monotone" dataKey="v" stroke="var(--color-accent)" strokeWidth={1.5} fill={`url(#${gradId})`} dot={false} />
               </AreaChart>
@@ -150,15 +151,10 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
     >
       {/* Header: avatar + name + champion badge(s) */}
       <div className="flex gap-3 items-center min-w-0">
-        <div className="w-12 h-12 rounded-full bg-elevated flex items-center justify-center text-sm text-fg-muted font-medium shrink-0 overflow-hidden">
-          {designer.avatarUrl
-            ? <img src={designer.avatarUrl} alt={designer.name} className="w-full h-full object-cover" />
-            : designer.name.slice(0, 2).toUpperCase()
-          }
-        </div>
+        <Avatar name={designer.name} src={designer.avatarUrl} className="w-12 h-12 text-sm" />
         <div className="flex flex-col min-w-0 flex-1">
           <p className="text-base text-fg-primary">{designer.name}</p>
-          <p className="text-sm text-fg-secondary line-clamp-1">{designer.subtitle}</p>
+          <p className="text-sm text-fg-secondary">{designer.subtitle}</p>
         </div>
         {designer.championYears.length > 0 && (
           <div className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated" style={{ top: 8, right: 8 }}>
@@ -192,6 +188,7 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
 export default function OverviewClient({ stats, designers, photos }: OverviewClientProps) {
   const active = designers.filter((d) => d.isActive);
   const former = designers.filter((d) => !d.isActive);
+  const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -256,7 +253,7 @@ export default function OverviewClient({ stats, designers, photos }: OverviewCli
             className="absolute pointer-events-none"
             style={{ top: 0, bottom: "-300px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}
           >
-            <Particles quantity={150} color="#39ff3e" className="w-full h-full" />
+            <Particles quantity={150} className="w-full h-full" />
           </div>
 
           {(isMobile ? [
@@ -274,9 +271,9 @@ export default function OverviewClient({ stats, designers, photos }: OverviewCli
           ]).map((photo, i) => (
             <motion.div
               key={i}
-              drag
+              drag={!prefersReducedMotion}
               dragMomentum={false}
-              whileDrag={{ scale: 1.05, zIndex: 10 }}
+              whileDrag={prefersReducedMotion ? {} : { scale: 1.05, zIndex: 10 }}
               initial={{ rotate: photo.rotate }}
               style={{
                 position: "absolute",
