@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
 import EntryCard from "./EntryCard";
 
 interface PodiumEntry {
@@ -70,6 +70,8 @@ function CloseIcon() {
 export default function PromptModal({ challenge, onClose }: PromptModalProps) {
   const reduceMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
+  const dragControls = useDragControls();
+  const contentScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -78,14 +80,29 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // iOS-compatible scroll lock
   useEffect(() => {
-    if (challenge) {
+    if (!challenge) return;
+    if (isMobile) {
+      const scrollY = window.scrollY;
       document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        window.scrollTo(0, scrollY);
+      };
+    } else {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [challenge]);
+  }, [challenge, isMobile]);
 
   const podiumAuthors = new Set(challenge?.podium.map((p) => p.name));
   const podiumCards = challenge?.podium.map((p) => {
@@ -119,16 +136,23 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
               style={{ boxShadow: "var(--shadow-modal)" }}
               onClick={(e) => e.stopPropagation()}
               drag={isMobile ? "y" : false}
+              dragControls={dragControls}
+              dragListener={false}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0, bottom: 0.8 }}
+              dragMomentum={false}
               onDragEnd={(_, info) => {
                 if (isMobile && (info.offset.y > 80 || info.velocity.y > 400)) onClose();
               }}
               transition={{ type: "spring", duration: reduceMotion ? 0 : 0.4, bounce: reduceMotion ? 0 : 0.1 }}
             >
 
-              {/* Drag handle — mobile only */}
-              <div className="sm:hidden shrink-0 sticky top-0 z-10 bg-surface rounded-t-2xl">
+              {/* Drag handle — mobile only, always starts drag */}
+              <div
+                className="sm:hidden shrink-0 bg-surface rounded-t-2xl relative"
+                onPointerDown={isMobile ? (e) => dragControls.start(e) : undefined}
+                style={{ touchAction: "none" }}
+              >
                 <div className="flex justify-center py-3">
                   <svg width="32" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="32" height="4" rx="2" fill="rgba(148,163,184,0.25)" />
@@ -141,8 +165,16 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
                 />
               </div>
 
-              {/* Scrollable content */}
-              <div className="overflow-y-auto sm:overflow-visible flex-1">
+              {/* Scrollable content — drag starts here only when scrolled to top */}
+              <div
+                ref={contentScrollRef}
+                className="overflow-y-auto sm:overflow-visible flex-1"
+                style={{ overscrollBehavior: "none" }}
+                onPointerDown={isMobile ? (e) => {
+                  const el = contentScrollRef.current;
+                  if (el && el.scrollTop === 0) dragControls.start(e);
+                } : undefined}
+              >
                 <div className="relative p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
 
                   {/* Close X button */}
