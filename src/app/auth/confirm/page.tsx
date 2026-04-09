@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Nav from "@/components/Nav";
 import Particles from "@/components/Particles";
@@ -12,6 +12,27 @@ export default function ConfirmPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [ready, setReady] = useState(false);
+  const supabaseRef = useRef(createClient());
+
+  useEffect(() => {
+    const supabase = supabaseRef.current;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setReady(true);
+        subscription.unsubscribe();
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setReady(true);
+        subscription.unsubscribe();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,8 +40,7 @@ export default function ConfirmPage() {
     if (password.length < 8) { setError("Password must be at least 8 characters"); return; }
     setLoading(true);
     setError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabaseRef.current.auth.updateUser({ password });
     setLoading(false);
     if (error) { setError(error.message); return; }
     setDone(true);
@@ -56,7 +76,12 @@ export default function ConfirmPage() {
               className="relative w-full max-w-[480px] bg-surface rounded-2xl p-5 flex flex-col gap-5"
               style={{ boxShadow: "var(--shadow-default)", zIndex: 1 }}
             >
-              {done ? (
+              {!ready ? (
+                <div className="flex flex-col gap-1">
+                  <p className="text-base text-fg-primary">Verifying invitation…</p>
+                  <p className="text-sm text-fg-muted leading-5">Please wait while we confirm your link.</p>
+                </div>
+              ) : done ? (
                 <div className="flex flex-col gap-3">
                   <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -75,7 +100,7 @@ export default function ConfirmPage() {
                 </div>
               )}
 
-              {!done && (
+              {ready && !done && (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                   <input
                     type="password"
