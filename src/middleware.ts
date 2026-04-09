@@ -29,8 +29,21 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Protect /admin — admins and members only
+  // Fetch role from auth.users directly so role changes take effect immediately
+  // without requiring the user to re-login
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    const role = user?.app_metadata?.role;
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+    const admin = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data } = await admin.auth.admin.getUserById(user.id);
+    const role = data?.user?.app_metadata?.role;
+
     if (role !== "admin" && role !== "member") {
       return NextResponse.redirect(new URL("/login", request.url));
     }

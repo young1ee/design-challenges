@@ -1072,7 +1072,14 @@ export default function AdminPage() {
       const email = session?.user?.email ?? "";
       const name = email.split("@")[0].split(".")[0].replace(/\b\w/g, (c) => c.toUpperCase());
       setUserName(name);
-      setIsAdmin(session?.user?.app_metadata?.role === "admin");
+      // Fetch role from server to reflect changes immediately without re-login
+      const roleRes = await fetch("/api/me/role");
+      if (roleRes.ok) {
+        const { role } = await roleRes.json();
+        setIsAdmin(role === "admin");
+      } else {
+        setIsAdmin(session?.user?.app_metadata?.role === "admin");
+      }
       // Match to designer by slug (first part of email before @ or .)
       const slug = email.split("@")[0].split(".")[0].toLowerCase();
       const { data } = await supabase.from("designers").select("id").eq("slug", slug).maybeSingle();
