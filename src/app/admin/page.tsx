@@ -714,7 +714,7 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
 
     // Send invite email if email provided
     if (email) {
-      const confirmUrl = `${window.location.origin}/auth/confirm`;
+      const confirmUrl = `${window.location.origin}/auth/callback?next=/auth/confirm`;
       const { error: inviteErr } = await inviteDesigner(email, confirmUrl);
       if (inviteErr) { setSaving(false); setError(`Designer saved, but invite failed: ${inviteErr}`); return; }
     }
@@ -775,7 +775,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     if (!inviteEmail) return;
     setInviting(true);
     setInviteStatus(null);
-    const confirmUrl = `${window.location.origin}/auth/confirm`;
+    const confirmUrl = `${window.location.origin}/auth/callback?next=/auth/confirm`;
     const { error, userId } = await inviteDesigner(inviteEmail, confirmUrl, isAdminRole ? "admin" : "member");
     setInviting(false);
     if (error) { setInviteStatus({ ok: false, msg: error }); return; }
@@ -1055,6 +1055,7 @@ export default function AdminPage() {
 
   const [userName, setUserName] = useState("");
   const [myDesignerId, setMyDesignerId] = useState<string | null>(null);
+  const [myDesignerSlug, setMyDesignerSlug] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [challenges, setChallenges] = useState<DbChallenge[]>([]);
   const [designers, setDesigners] = useState<DbDesigner[]>([]);
@@ -1082,8 +1083,8 @@ export default function AdminPage() {
       }
       // Match to designer by slug (first part of email before @ or .)
       const slug = email.split("@")[0].split(".")[0].toLowerCase();
-      const { data } = await supabase.from("designers").select("id").eq("slug", slug).maybeSingle();
-      if (data) setMyDesignerId(data.id);
+      const { data } = await supabase.from("designers").select("id, slug").eq("slug", slug).maybeSingle();
+      if (data) { setMyDesignerId(data.id); setMyDesignerSlug(data.slug); }
       // Auto-link auth account to designer row if not yet set
       if (session) linkDesignerAccount();
     });
@@ -1233,7 +1234,7 @@ export default function AdminPage() {
                         >
                           Edit challenge
                         </button>}
-                        {viewingAs && viewingAs.slug === challenge.master_of_ceremony?.slug && !effectiveIsAdmin && (
+                        {!effectiveIsAdmin && (viewingAs?.slug ?? myDesignerSlug) === challenge.master_of_ceremony?.slug && (
                           <button
                             onClick={() => setModal({ kind: "set-prompt", challenge })}
                             className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"

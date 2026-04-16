@@ -17,21 +17,9 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     const supabase = supabaseRef.current;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setReady(true);
-        subscription.unsubscribe();
-      }
-    });
-
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setReady(true);
-        subscription.unsubscribe();
-      }
+      if (session) setReady(true);
     });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
