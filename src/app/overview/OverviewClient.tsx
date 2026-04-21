@@ -412,17 +412,27 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
 
                       <div className="columns-1 sm:columns-2 gap-3">
                         {allPhotos.map((photo, i) => (
-                          <img
+                          <div
                             key={i}
-                            src={photo.url}
-                            alt={photo.alt}
-                            className="w-full rounded-xl mb-3 break-inside-avoid"
+                            className="relative mb-3 break-inside-avoid rounded-xl overflow-hidden group"
                             style={{
-                              display: "block",
                               animation: prefersReducedMotion ? undefined : "gallery-img-in 0.3s cubic-bezier(0.23,1,0.32,1) both",
                               animationDelay: prefersReducedMotion ? undefined : `${i * 30}ms`,
                             }}
-                          />
+                          >
+                            <img
+                              src={photo.url}
+                              alt={photo.alt}
+                              className="w-full block"
+                            />
+                            {photo.alt && (
+                              <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                style={{ background: "linear-gradient(to top, rgba(2,6,23,0.85) 0%, transparent 100%)" }}
+                              >
+                                <p className="text-xs text-fg-primary leading-snug">{photo.alt}</p>
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
 

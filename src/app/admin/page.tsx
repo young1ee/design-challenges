@@ -1023,17 +1023,15 @@ function PhotoCard({ photo, index, description, onEditDesc, onRemove, onDragEnd 
     >
       <div className="flex items-center gap-3 self-center shrink-0 text-fg-muted">
         <DragHandleIcon size={16} />
-        <div className="flex flex-col gap-1.5">
-          <img src={photo.url} alt={description ?? photo.name} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
-          {description && (
-            <p className="w-20 text-xs text-fg-muted leading-tight line-clamp-2">{description}</p>
-          )}
-        </div>
+        <img src={photo.url} alt={description ?? photo.name} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
       </div>
       <div className="flex flex-col gap-3 min-w-0 flex-1">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-fg-muted truncate">{photo.name}</span>
-          {index < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-fg-muted truncate">{photo.name}</span>
+            {index < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
+          </div>
+          {description && <p className="text-sm text-fg-primary">{description}</p>}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onEditDesc(); }}
