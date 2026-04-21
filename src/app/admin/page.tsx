@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, forwardRef } from "react";
-import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { AnimatePresence, motion, Reorder, useDragControls } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
 import Nav from "@/components/Nav";
@@ -1003,6 +1003,58 @@ function EditDescriptionModal({ photo, current, onClose, onSaved }: {
   );
 }
 
+function PhotoCard({ photo, index, description, onEditDesc, onRemove, onDragEnd }: {
+  photo: GalleryPhoto;
+  index: number;
+  description: string | undefined;
+  onEditDesc: () => void;
+  onRemove: () => void;
+  onDragEnd: () => void;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      as="div"
+      value={photo}
+      dragControls={controls}
+      dragListener={false}
+      onDragEnd={onDragEnd}
+      whileDrag={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2)", zIndex: 10 }}
+      transition={{ type: "spring", bounce: 0, duration: 0.25 }}
+      className="flex items-start gap-6 p-5 rounded-2xl bg-surface hover:bg-[var(--color-glass-hover)] transition-colors duration-200"
+      style={{ boxShadow: "var(--shadow-default)" }}
+    >
+      <div className="flex items-center gap-3 self-center shrink-0 text-fg-muted">
+        <div
+          onPointerDown={(e) => controls.start(e)}
+          style={{ touchAction: "none", cursor: "grab" }}
+        >
+          <DragHandleIcon size={16} />
+        </div>
+        <img src={photo.url} alt={description ?? ""} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
+      </div>
+      <div className="flex flex-col gap-3 min-w-0 flex-1">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-fg-muted truncate">{photo.name}</span>
+            {index < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
+          </div>
+          {description && <p className="text-sm text-fg-primary">{description}</p>}
+        </div>
+        <button
+          onClick={onEditDesc}
+          className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
+        >
+          {description ? "Edit description" : "Add description"}
+        </button>
+      </div>
+      <GlassButton className="shrink-0 w-10 h-10" onClick={onRemove}>
+        <CloseIcon size={16} />
+      </GlassButton>
+    </Reorder.Item>
+  );
+}
+
 const PhotosTab = forwardRef<PhotosTabHandle, object>(
 function PhotosTab(_props, ref) {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
@@ -1018,13 +1070,11 @@ function PhotosTab(_props, ref) {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const [{ data: files }, { data: settings }, descs] = await Promise.all([
+      const [{ data: files }, { data: settings }] = await Promise.all([
         supabase.storage.from("photos").list("overview"),
         supabase.from("settings").select("photo_order").single(),
-        getPhotoDescriptions(),
       ]);
       if (!files) return;
-      setDescriptions(descs);
       const order: string[] = settings?.photo_order ?? [];
       const sorted = [
         ...order.map((name) => files.find((f) => f.name === name)).filter(Boolean),
@@ -1034,6 +1084,7 @@ function PhotosTab(_props, ref) {
         name: f.name,
         url: `${supabase.storage.from("photos").getPublicUrl(`overview/${f.name}`).data.publicUrl}?t=${f.updated_at ?? Date.now()}`,
       })));
+      getPhotoDescriptions().then(setDescriptions).catch(() => {});
     }
     load();
   }, []);
@@ -1079,39 +1130,15 @@ function PhotosTab(_props, ref) {
       ) : (
         <Reorder.Group as="div" axis="y" values={photos} onReorder={setPhotos} className="flex flex-col gap-4">
           {photos.map((photo, i) => (
-            <Reorder.Item
-              as="div"
+            <PhotoCard
               key={photo.name}
-              value={photo}
+              photo={photo}
+              index={i}
+              description={descriptions[photo.name]}
+              onEditDesc={() => setEditingDesc(photo)}
+              onRemove={() => handleRemove(photo.name)}
               onDragEnd={handleDragEnd}
-              whileDrag={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2)", zIndex: 10 }}
-              transition={{ type: "spring", bounce: 0, duration: 0.25 }}
-              className="flex items-start gap-6 p-5 rounded-2xl bg-surface hover:bg-[var(--color-glass-hover)] transition-colors duration-200"
-              style={{ boxShadow: "var(--shadow-default)" }}
-            >
-              <div className="flex items-center gap-3 self-center shrink-0 text-fg-muted">
-                <DragHandleIcon size={16} />
-                <img src={photo.url} alt={descriptions[photo.name] ?? ""} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
-              </div>
-              <div className="flex flex-col gap-3 min-w-0 flex-1">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-fg-muted truncate">{photo.name}</span>
-                    {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
-                  </div>
-                  {descriptions[photo.name] && <p className="text-sm text-fg-primary">{descriptions[photo.name]}</p>}
-                </div>
-                <button
-                  onClick={() => setEditingDesc(photo)}
-                  className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
-                >
-                  {descriptions[photo.name] ? "Edit description" : "Add description"}
-                </button>
-              </div>
-              <GlassButton className="shrink-0 w-10 h-10" onClick={() => handleRemove(photo.name)}>
-                <CloseIcon size={16} />
-              </GlassButton>
-            </Reorder.Item>
+            />
           ))}
         </Reorder.Group>
       )}
