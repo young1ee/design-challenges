@@ -1,8 +1,5 @@
 "use client";
 
-const inviteCallbackUrl = () =>
-  `${window.location.origin}/auth/callback?next=/auth/confirm`;
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -16,6 +13,9 @@ import GlassButton from "@/components/GlassButton";
 import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
 import { ChevronDown, CloseIcon, CheckIcon } from "@/components/Icons";
+
+const inviteCallbackUrl = () =>
+  `${window.location.origin}/auth/callback?next=/auth/confirm`;
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
