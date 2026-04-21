@@ -1038,7 +1038,7 @@ function PhotosTab({ seasons: _seasons }, ref) {
       {photos.length === 0 ? (
         <p className="text-sm text-fg-muted">No photos yet.</p>
       ) : (
-        <Reorder.Group as="div" axis="y" values={photos} onReorder={setPhotos} className="flex flex-col gap-2">
+        <Reorder.Group as="div" axis="y" values={photos} onReorder={setPhotos} className="flex flex-col gap-4">
           {photos.map((photo, i) => (
             <Reorder.Item
               as="div"
