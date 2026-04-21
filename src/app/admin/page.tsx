@@ -1023,10 +1023,6 @@ function PhotosTab({ seasons: _seasons }, ref) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-base text-fg-primary">Overview collage</p>
-        <p className="text-sm text-fg-muted">First 5 appear in the draggable collage. Drag to reorder.</p>
-      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -1344,11 +1340,17 @@ export default function AdminPage() {
 
           {activeTab === "photos" && (
             <>
-              {effectiveIsAdmin && <div className="flex justify-end">
-                <GlassButton className="px-4 py-2.5 text-sm" onClick={() => photosTabRef.current?.triggerAdd()}>
-                  Add image
-                </GlassButton>
-              </div>}
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <p className="text-base text-fg-primary">Overview collage</p>
+                  <p className="text-sm text-fg-muted">First 5 appear in the draggable collage. Drag to reorder.</p>
+                </div>
+                {effectiveIsAdmin && (
+                  <GlassButton className="shrink-0 px-4 py-2.5 text-sm" onClick={() => photosTabRef.current?.triggerAdd()}>
+                    Add image
+                  </GlassButton>
+                )}
+              </div>
               <PhotosTab ref={photosTabRef} seasons={seasons} />
             </>
           )}
