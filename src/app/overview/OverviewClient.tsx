@@ -314,32 +314,32 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                     transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                   />
                 </Dialog.Overlay>
-                <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
                   <Dialog.Content asChild aria-describedby={undefined}>
                     <motion.div
-                      className="relative w-full max-w-2xl mx-auto bg-surface rounded-2xl p-5 flex flex-col gap-5"
-                      style={{ boxShadow: "var(--shadow-modal)" }}
+                      className="relative w-full max-w-2xl bg-surface rounded-2xl flex flex-col"
+                      style={{ boxShadow: "var(--shadow-modal)", maxHeight: "90vh" }}
                       initial={{ opacity: 0, scale: 0.97, y: 6 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.97, y: 6 }}
                       transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                     >
-                      <div className="flex items-center justify-between">
-                        <Dialog.Title className="text-base text-fg-secondary">Gallery · {allPhotos.length} photos</Dialog.Title>
+                      <div className="flex items-center justify-between gap-4 p-5 shrink-0">
+                        <Dialog.Title className="text-base text-fg-secondary">Gallery</Dialog.Title>
                         <Dialog.Close asChild>
                           <GlassButton className="w-10 h-10 shrink-0">
                             <CloseIcon size={16} />
                           </GlassButton>
                         </Dialog.Close>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="overflow-y-auto px-5 pb-5" style={{ columns: 2, columnGap: "12px" }}>
                         {allPhotos.map((photo, i) => (
                           <img
                             key={i}
                             src={photo.url}
                             alt={photo.alt}
-                            className="w-full rounded-xl object-cover"
-                            style={{ aspectRatio: "4/3" }}
+                            className="w-full rounded-xl mb-3 break-inside-avoid"
+                            style={{ display: "block" }}
                           />
                         ))}
                       </div>
