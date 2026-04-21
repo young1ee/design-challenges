@@ -1083,7 +1083,7 @@ function PhotosTab({ seasons: _seasons }, ref) {
               key={photo.name}
               value={photo}
               onDragEnd={handleDragEnd}
-              className="flex items-center gap-3 p-5 rounded-2xl bg-surface cursor-grab active:cursor-grabbing"
+              className="flex items-start gap-3 p-5 rounded-2xl bg-surface cursor-grab active:cursor-grabbing"
               style={{ boxShadow: "var(--shadow-default)" }}
             >
               <img src={photo.url} alt={descriptions[photo.name] ?? ""} className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
@@ -1093,7 +1093,7 @@ function PhotosTab({ seasons: _seasons }, ref) {
                     <span className="text-sm text-fg-muted truncate">{photo.name}</span>
                     {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
                   </div>
-                  <p className="text-sm text-fg-primary">{descriptions[photo.name] ?? <span className="text-fg-muted italic">No description</span>}</p>
+                  {descriptions[photo.name] && <p className="text-sm text-fg-primary">{descriptions[photo.name]}</p>}
                 </div>
                 <button
                   onClick={() => setEditingDesc(photo)}
