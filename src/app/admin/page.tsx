@@ -6,6 +6,7 @@ const inviteCallbackUrl = () =>
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Dialog from "@radix-ui/react-dialog";
 import Nav from "@/components/Nav";
 import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
@@ -230,37 +231,41 @@ function FieldGroup({ label, children }: { label: string; children: React.ReactN
 
 function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <>
-      <motion.div
-        className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-        onClick={onClose}
-      />
-      <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
-        <div className="flex min-h-full items-center justify-center p-6 pointer-events-none">
+    <Dialog.Root open onOpenChange={(v) => { if (!v) onClose(); }}>
+      <Dialog.Portal>
+        <Dialog.Overlay asChild>
           <motion.div
-            className="w-full max-w-[400px] bg-surface rounded-2xl p-5 flex flex-col gap-4 pointer-events-auto"
-            style={{ boxShadow: "var(--shadow-modal)" }}
-            onClick={(e) => e.stopPropagation()}
-            initial={{ opacity: 0, scale: 0.97, y: 6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 6 }}
+            className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          >
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-base text-fg-secondary flex-1 min-w-0">{title}</p>
-              <GlassButton onClick={onClose} className="w-10 h-10 shrink-0">
-                <CloseIcon />
-              </GlassButton>
-            </div>
-            {children}
-          </motion.div>
+          />
+        </Dialog.Overlay>
+        <div className="fixed inset-0 z-50 overflow-y-auto flex min-h-full items-center justify-center p-6">
+          <Dialog.Content asChild aria-describedby={undefined}>
+            <motion.div
+              className="w-full max-w-[400px] bg-surface rounded-2xl p-5 flex flex-col gap-4"
+              style={{ boxShadow: "var(--shadow-modal)" }}
+              initial={{ opacity: 0, scale: 0.97, y: 6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 6 }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <Dialog.Title className="text-base text-fg-secondary flex-1 min-w-0">{title}</Dialog.Title>
+                <Dialog.Close asChild>
+                  <GlassButton className="w-10 h-10 shrink-0">
+                    <CloseIcon />
+                  </GlassButton>
+                </Dialog.Close>
+              </div>
+              {children}
+            </motion.div>
+          </Dialog.Content>
         </div>
-      </div>
-    </>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -1134,10 +1139,6 @@ export default function AdminPage() {
 
   useEffect(() => { loadDesigners(); }, [loadDesigners]);
 
-  useEffect(() => {
-    document.body.style.overflow = modal ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [modal]);
 
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
