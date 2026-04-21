@@ -222,14 +222,15 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
   useScrollLock(galleryOpen, isMobile);
 
   const dur = (ms: number) => prefersReducedMotion ? 0 : ms;
-  const ease = [0.23, 1, 0.32, 1] as const;
+  const easeOut = [0.23, 1, 0.32, 1] as [number, number, number, number];
+  const easeDrawer = [0.32, 0.72, 0, 1] as [number, number, number, number];
   const galleryInitial = isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 8 };
   const galleryAnimate = isMobile
-    ? { y: 0, transition: { duration: dur(0.32), ease: [0.32, 0.72, 0, 1] } }
-    : { opacity: 1, scale: 1, y: 0, transition: { duration: dur(0.22), ease } };
+    ? { y: 0, transition: { duration: dur(0.32), ease: easeDrawer } }
+    : { opacity: 1, scale: 1, y: 0, transition: { duration: dur(0.22), ease: easeOut } };
   const galleryExit = isMobile
-    ? { y: "100%", transition: { duration: dur(0.2), ease } }
-    : { opacity: 0, scale: 0.97, y: 8, transition: { duration: dur(0.16), ease } };
+    ? { y: "100%", transition: { duration: dur(0.2), ease: easeOut } }
+    : { opacity: 0, scale: 0.97, y: 8, transition: { duration: dur(0.16), ease: easeOut } };
 
   return (
     <div className="flex flex-col items-center gap-12 py-12 sm:gap-20 sm:py-20 min-h-screen">
