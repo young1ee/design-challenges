@@ -38,11 +38,13 @@ export interface DesignerItem {
   avatarUrl: string | null;
 }
 
+export interface PhotoItem { url: string; alt: string; }
+
 export interface OverviewClientProps {
   stats: StatItem[];
   designers: DesignerItem[];
-  photos: string[];
-  allPhotos: string[];
+  photos: PhotoItem[];
+  allPhotos: PhotoItem[];
 }
 
 // ─── Animated stat number ─────────────────────────────────────────────────────
@@ -284,7 +286,7 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                 }}
               >
                 {photos[i]
-                  ? <img src={photos[i]} alt="" draggable={false} style={{ width: "100%", height: "auto", display: "block" }} />
+                  ? <img src={photos[i].url} alt={photos[i].alt} draggable={false} style={{ width: "100%", height: "auto", display: "block" }} />
                   : <div style={{ width: "100%", aspectRatio: "4/3", background: "var(--color-elevated)" }} />
                 }
               </motion.div>
@@ -333,11 +335,11 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                         </Dialog.Close>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {allPhotos.map((url, i) => (
+                        {allPhotos.map((photo, i) => (
                           <img
                             key={i}
-                            src={url}
-                            alt=""
+                            src={photo.url}
+                            alt={photo.alt}
                             className="w-full rounded-xl object-cover"
                             style={{ aspectRatio: "4/3" }}
                           />

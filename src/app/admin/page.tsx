@@ -13,7 +13,7 @@ import GlassButton from "@/components/GlassButton";
 import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
 import { ChevronDown, CloseIcon, CheckIcon } from "@/components/Icons";
-import { updatePhotoOrder } from "@/app/actions/settings";
+import { updatePhotoOrder, getPhotoDescriptions, updatePhotoDescription } from "@/app/actions/settings";
 
 const inviteCallbackUrl = () =>
   `${window.location.origin}/auth/callback?next=/auth/confirm`;
@@ -965,9 +965,49 @@ function YearDropdown({ value, onChange }: { value: number; onChange: (y: number
 interface GalleryPhoto { name: string; url: string; }
 interface PhotosTabHandle { triggerAdd: () => void; }
 
+function EditDescriptionModal({ photo, current, onClose, onSaved }: {
+  photo: GalleryPhoto;
+  current: string;
+  onClose: () => void;
+  onSaved: (name: string, desc: string) => void;
+}) {
+  const [value, setValue] = useState(current);
+  const [saving, setSaving] = useState(false);
+  async function handleSave() {
+    setSaving(true);
+    await updatePhotoDescription(photo.name, value.trim());
+    onSaved(photo.name, value.trim());
+    onClose();
+  }
+  return (
+    <ModalShell title={current ? "Edit description" : "Add description"} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        <img src={photo.url} alt="" className="w-full rounded-xl object-contain" style={{ maxHeight: 240, background: "var(--color-canvas)" }} />
+        <p className="text-sm text-fg-muted truncate">{photo.name}</p>
+        <textarea
+          autoFocus
+          rows={3}
+          placeholder="e.g. Team celebrating at the annual design challenge kick-off"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="w-full px-4 py-3 rounded-lg bg-canvas text-sm text-fg-primary placeholder:text-fg-muted resize-none outline-none transition-shadow duration-150"
+          onFocus={(e) => { e.target.style.boxShadow = "0 0 0 1.5px var(--color-accent), var(--shadow-default)"; }}
+          onBlur={(e) => { e.target.style.boxShadow = "var(--shadow-default)"; }}
+          style={{ boxShadow: "var(--shadow-default)" }}
+        />
+        <GlassButton className="w-full py-2.5 text-sm justify-center" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </GlassButton>
+      </div>
+    </ModalShell>
+  );
+}
+
 const PhotosTab = forwardRef<PhotosTabHandle, { seasons: DbSeason[] }>(
 function PhotosTab({ seasons: _seasons }, ref) {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
+  const [editingDesc, setEditingDesc] = useState<GalleryPhoto | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<GalleryPhoto[]>([]);
@@ -978,11 +1018,13 @@ function PhotosTab({ seasons: _seasons }, ref) {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const [{ data: files }, { data: settings }] = await Promise.all([
+      const [{ data: files }, { data: settings }, descs] = await Promise.all([
         supabase.storage.from("photos").list("overview"),
         supabase.from("settings").select("photo_order").single(),
+        getPhotoDescriptions(),
       ]);
       if (!files) return;
+      setDescriptions(descs);
       const order: string[] = settings?.photo_order ?? [];
       const sorted = [
         ...order.map((name) => files.find((f) => f.name === name)).filter(Boolean),
@@ -1044,8 +1086,19 @@ function PhotosTab({ seasons: _seasons }, ref) {
               className="flex items-center gap-3 p-5 rounded-2xl bg-surface cursor-grab active:cursor-grabbing"
               style={{ boxShadow: "var(--shadow-default)" }}
             >
-              <img src={photo.url} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
-              <span className="flex-1 text-sm text-fg-muted truncate">{photo.name}</span>
+              <img src={photo.url} alt={descriptions[photo.name] ?? ""} className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
+              <div className="flex flex-col gap-1 min-w-0 flex-1">
+                {descriptions[photo.name] && (
+                  <span className="text-sm text-fg-primary truncate">{descriptions[photo.name]}</span>
+                )}
+                <span className="text-sm text-fg-muted truncate">{photo.name}</span>
+                <button
+                  onClick={() => setEditingDesc(photo)}
+                  className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
+                >
+                  {descriptions[photo.name] ? "Edit description" : "Add description"}
+                </button>
+              </div>
               {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Visible</span>}
               <GlassButton className="shrink-0 w-10 h-10" onClick={() => handleRemove(photo.name)}>
                 <CloseIcon size={16} />
@@ -1054,6 +1107,17 @@ function PhotosTab({ seasons: _seasons }, ref) {
           ))}
         </Reorder.Group>
       )}
+
+      <AnimatePresence>
+        {editingDesc && (
+          <EditDescriptionModal
+            photo={editingDesc}
+            current={descriptions[editingDesc.name] ?? ""}
+            onClose={() => setEditingDesc(null)}
+            onSaved={(name, desc) => setDescriptions((prev) => ({ ...prev, [name]: desc }))}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 });

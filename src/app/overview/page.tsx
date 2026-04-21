@@ -1,7 +1,7 @@
 import OverviewClient from "./OverviewClient";
 import { getSeasons, getActiveDesigners, getSeasonLeaderboard } from "@/lib/db/queries";
 import { createClient } from "@/lib/supabase/server";
-import { getPhotoOrder } from "@/app/actions/settings";
+import { getPhotoOrder, getPhotoDescriptions } from "@/app/actions/settings";
 
 export default async function OverviewPage() {
   const supabase = await createClient();
@@ -11,9 +11,10 @@ export default async function OverviewPage() {
   ]);
 
   // Fetch all overview collage photos from storage, ordered by saved photo_order
-  const [{ data: photoFiles }, photoOrder] = await Promise.all([
+  const [{ data: photoFiles }, photoOrder, photoDescriptions] = await Promise.all([
     supabase.storage.from("photos").list("overview"),
     getPhotoOrder(),
+    getPhotoDescriptions(),
   ]);
   const files = photoFiles ?? [];
   const ordered = [
@@ -22,7 +23,7 @@ export default async function OverviewPage() {
   ] as typeof files;
   const allPhotos = ordered.map((f) => {
     const url = supabase.storage.from("photos").getPublicUrl(`overview/${f.name}`).data.publicUrl;
-    return `${url}?t=${f.updated_at ?? f.created_at ?? ""}`;
+    return { url: `${url}?t=${f.updated_at ?? f.created_at ?? ""}`, alt: photoDescriptions[f.name] ?? "" };
   });
   const photos = allPhotos.slice(0, 5);
   const sortedSeasons = [...seasons].sort((a, b) => a.number - b.number); // oldest → newest for charts

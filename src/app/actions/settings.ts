@@ -17,3 +17,14 @@ export async function getPhotoOrder(): Promise<string[]> {
 export async function updatePhotoOrder(order: string[]) {
   await service().from("settings").upsert({ id: true, photo_order: order });
 }
+
+export async function getPhotoDescriptions(): Promise<Record<string, string>> {
+  const { data } = await service().from("settings").select("photo_descriptions").single();
+  return data?.photo_descriptions ?? {};
+}
+
+export async function updatePhotoDescription(name: string, description: string) {
+  const existing = await getPhotoDescriptions();
+  const updated = { ...existing, [name]: description };
+  await service().from("settings").upsert({ id: true, photo_descriptions: updated });
+}
