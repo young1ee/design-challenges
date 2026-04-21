@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash,
-      type: type as Parameters<typeof supabase.auth.verifyOtp>[0]["type"],
+      type: type as "invite" | "email" | "recovery" | "email_change",
     });
     if (!error) {
       return NextResponse.redirect(new URL(next, origin));
