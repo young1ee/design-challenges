@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion, useDragControls } from "fram
 import EntryCard from "./EntryCard";
 import GlassButton from "./GlassButton";
 import Avatar from "./Avatar";
+import { CloseIcon } from "./Icons";
 
 interface PodiumEntry {
   name: string;
@@ -41,14 +42,6 @@ interface PromptModalProps {
 
 const PLACEMENTS = ["winner", "2nd", "3rd"] as const;
 
-
-function CloseIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function PromptModal({ challenge, onClose }: PromptModalProps) {
   const reduceMotion = useReducedMotion();

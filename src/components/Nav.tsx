@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import Avatar from "./Avatar";
+import { ChevronDown, CheckIcon } from "./Icons";
 
 const seasons = [
   { label: "2026", href: "/" },
@@ -14,22 +15,6 @@ const seasons = [
   { label: "2024", href: "/2024" },
   { label: "2023", href: "/2023" },
 ];
-
-function ChevronDown() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 export default function Nav() {
   const pathname = usePathname();

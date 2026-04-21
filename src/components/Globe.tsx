@@ -84,7 +84,7 @@ export default function Globe({ size = 400 }: { size?: number }) {
         whiteSpace: "nowrap",
         opacity: `var(--cobe-visible-${id}, 0)`,
         filter: `blur(var(--cobe-visible-${id}, 8px))`,
-        transition: "opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1), filter 0.3s cubic-bezier(0.23, 1, 0.32, 1)",
+        transition: "opacity 0.3s var(--ease-out), filter 0.3s var(--ease-out)",
         lineHeight: "1.2",
       });
       el.textContent = text;

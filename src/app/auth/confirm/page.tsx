@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import Nav from "@/components/Nav";
 import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
+import FormInput from "@/components/FormInput";
 
 export default function ConfirmPage() {
   const [password, setPassword] = useState("");
@@ -38,18 +39,6 @@ export default function ConfirmPage() {
     if (error) { setError(error.message); return; }
     setDone(true);
     setTimeout(() => { window.location.href = "/admin"; }, 1500);
-  }
-
-  const inputBase = "w-full h-[41px] px-4 rounded-lg bg-canvas text-sm text-fg-primary placeholder:text-fg-muted outline-none";
-  const inputStyle = { boxShadow: "none", transition: "box-shadow 150ms ease-out" };
-
-  function onHoverIn(e: React.MouseEvent<HTMLInputElement>) {
-    if (document.activeElement !== e.currentTarget)
-      e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-line)";
-  }
-  function onHoverOut(e: React.MouseEvent<HTMLInputElement>) {
-    if (document.activeElement !== e.currentTarget)
-      e.currentTarget.style.boxShadow = "none";
   }
 
   return (
@@ -95,31 +84,19 @@ export default function ConfirmPage() {
 
               {ready && !done && (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                  <input
+                  <FormInput
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="New password"
                     required
-                    className={inputBase}
-                    style={inputStyle}
-                    onMouseEnter={onHoverIn}
-                    onMouseLeave={onHoverOut}
-                    onFocus={(e) => { e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-accent)"; }}
-                    onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }}
                   />
-                  <input
+                  <FormInput
                     type="password"
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     placeholder="Confirm password"
                     required
-                    className={inputBase}
-                    style={inputStyle}
-                    onMouseEnter={onHoverIn}
-                    onMouseLeave={onHoverOut}
-                    onFocus={(e) => { e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-accent)"; }}
-                    onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }}
                   />
                   {error && <p className="text-xs text-danger">{error}</p>}
                   <button

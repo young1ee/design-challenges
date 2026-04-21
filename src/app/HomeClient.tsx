@@ -325,7 +325,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
               }}
             />
           </div>
-          <div style={{ animation: "hero-item-reveal 0.7s cubic-bezier(0.23, 1, 0.32, 1) both" }}>
+          <div style={{ animation: "hero-item-reveal 0.7s var(--ease-out) both" }}>
             <SectionLabel right={currentChallenge?.isOpen && !challengeExpired ? <Badge variant="positive" label="Active" /> : <Badge variant="negative" label="Closed" />}>Current challenge</SectionLabel>
           </div>
 
@@ -338,7 +338,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                     style={{
                       display: "inline-block",
                       marginRight: "0.3em",
-                      animation: "blur-word-reveal 0.6s cubic-bezier(0.23, 1, 0.32, 1) both",
+                      animation: "blur-word-reveal 0.6s var(--ease-out) both",
                       animationDelay: `${0.15 + i * 0.08}s`,
                     }}
                   >
@@ -361,7 +361,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
           ) : (
             <p
               className="text-2xl text-fg-muted"
-              style={{ animation: "hero-item-reveal 0.7s cubic-bezier(0.23, 1, 0.32, 1) both", animationDelay: "0.2s" }}
+              style={{ animation: "hero-item-reveal 0.7s var(--ease-out) both", animationDelay: "0.2s" }}
             >
               No active challenge right now.
             </p>
@@ -369,7 +369,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
         </section>
 
         {/* Everything below the hero reveals after the hero animation completes */}
-        <div className="flex flex-col gap-20" style={{ animation: "content-reveal 1s cubic-bezier(0.23, 1, 0.32, 1) both", animationDelay: "1.8s" }}>
+        <div className="flex flex-col gap-20" style={{ animation: "content-reveal 1s var(--ease-out) both", animationDelay: "1.8s" }}>
 
         {/* Previous challenges */}
         {previousChallenges.length > 0 && (

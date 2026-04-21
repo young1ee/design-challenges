@@ -15,6 +15,7 @@ import { linkDesignerAccount } from "@/app/actions/link-designer";
 import GlassButton from "@/components/GlassButton";
 import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
+import { ChevronDown, CloseIcon, CheckIcon } from "@/components/Icons";
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
@@ -84,22 +85,6 @@ type ActiveModal =
   | null;
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
-
-function ChevronDown() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 const inputBase = "w-full h-10 px-3 text-sm text-fg-primary bg-canvas rounded-lg outline-none placeholder:text-fg-muted";
 const inputStyle = { boxShadow: "none", transition: "box-shadow 150ms ease-out" };
@@ -256,7 +241,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
                 <Dialog.Title className="text-base text-fg-secondary flex-1 min-w-0">{title}</Dialog.Title>
                 <Dialog.Close asChild>
                   <GlassButton className="w-10 h-10 shrink-0">
-                    <CloseIcon />
+                    <CloseIcon size={16} />
                   </GlassButton>
                 </Dialog.Close>
               </div>
@@ -864,7 +849,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
               style={{
                 background: active ? "var(--color-canvas)" : "var(--color-glass-active)",
                 transform: active ? "translateX(18px)" : "translateX(0px)",
-                transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                transition: "transform 200ms var(--ease-out)",
               }}
             />
           </button>
@@ -881,7 +866,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
               style={{
                 background: isAdminRole ? "var(--color-canvas)" : "var(--color-glass-active)",
                 transform: isAdminRole ? "translateX(18px)" : "translateX(0px)",
-                transition: "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                transition: "transform 200ms var(--ease-out)",
               }}
             />
           </button>
@@ -927,14 +912,6 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
 }
 
 // ─── Year dropdown ─────────────────────────────────────────────────────────────
-
-function CheckIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function YearDropdown({ value, onChange }: { value: number; onChange: (y: number) => void }) {
   const [hovered, setHovered] = useState<number | null>(null);

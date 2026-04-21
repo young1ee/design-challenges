@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
+import FormInput from "@/components/FormInput";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -38,18 +39,6 @@ export default function LoginPage() {
     setResetSent(true);
   }
 
-  const inputBase = "w-full h-[41px] px-4 rounded-lg bg-canvas text-sm text-fg-primary placeholder:text-fg-muted outline-none";
-  const inputStyle = { boxShadow: "none", transition: "box-shadow 150ms ease-out" };
-
-  function onHoverIn(e: React.MouseEvent<HTMLInputElement>) {
-    if (document.activeElement !== e.currentTarget)
-      e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-line)";
-  }
-  function onHoverOut(e: React.MouseEvent<HTMLInputElement>) {
-    if (document.activeElement !== e.currentTarget)
-      e.currentTarget.style.boxShadow = "none";
-  }
-
   return (
     <div className="flex flex-col items-center gap-12 py-12 sm:gap-20 sm:py-20 min-h-screen">
       <Nav />
@@ -78,31 +67,19 @@ export default function LoginPage() {
               </div>
 
               {!resetSent && <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <input
+                <FormInput
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@nortal.com"
                   required
-                  className={inputBase}
-                  style={inputStyle}
-                  onMouseEnter={onHoverIn}
-                  onMouseLeave={onHoverOut}
-                  onFocus={(e) => { e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-accent)"; }}
-                  onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }}
                 />
-                <input
+                <FormInput
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   required
-                  className={inputBase}
-                  style={inputStyle}
-                  onMouseEnter={onHoverIn}
-                  onMouseLeave={onHoverOut}
-                  onFocus={(e) => { e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--color-accent)"; }}
-                  onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }}
                 />
                 {error && <p className="text-xs text-danger">{error}</p>}
                 <button

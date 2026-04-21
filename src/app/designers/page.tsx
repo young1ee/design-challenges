@@ -70,7 +70,7 @@ export default async function DesignersPage() {
 
       <div
         className="flex flex-col gap-10 w-full max-w-[920px] mx-auto px-4 sm:px-6"
-        style={{ animation: "content-reveal 0.7s cubic-bezier(0.23, 1, 0.32, 1) both" }}
+        style={{ animation: "content-reveal 0.7s var(--ease-out) both" }}
       >
         <div className="flex flex-col gap-6 items-center text-center">
           <SectionLabel>Season 4</SectionLabel>

@@ -71,7 +71,7 @@ export default async function DesignerProfilePage({
 
       <div
         className="flex flex-col gap-12 w-full max-w-[920px] mx-auto px-4 sm:px-6"
-        style={{ animation: "content-reveal 0.7s cubic-bezier(0.23, 1, 0.32, 1) both" }}
+        style={{ animation: "content-reveal 0.7s var(--ease-out) both" }}
       >
         <Link
           href="/designers"
