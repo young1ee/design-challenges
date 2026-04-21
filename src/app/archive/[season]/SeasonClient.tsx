@@ -242,7 +242,7 @@ function Season3Layout({
               className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-default"
               style={{ border: "0.5px solid rgba(57, 255, 62, 0.3)" }}
             >
-              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ outline: "none" }} />
+              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ boxShadow: "none" }} />
               <span className="text-sm" style={{ color: "var(--color-accent)" }}>{year} North Star</span>
             </div>
           </Tip>
@@ -464,7 +464,7 @@ function OldSeasonLayout({
               className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-default"
               style={{ border: "0.5px solid rgba(57, 255, 62, 0.3)" }}
             >
-              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ outline: "none" }} />
+              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ boxShadow: "none" }} />
               <span className="text-sm" style={{ color: "var(--color-accent)" }}>{year} North Star</span>
             </div>
           </Tip>

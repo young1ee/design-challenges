@@ -1023,7 +1023,7 @@ function PhotoCard({ photo, index, description, onEditDesc, onRemove, onDragEnd 
     >
       <div className="flex items-center gap-3 self-center shrink-0 text-fg-muted">
         <DragHandleIcon size={16} />
-        <img src={photo.url} alt={description ?? photo.name} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
+        <img src={photo.url} alt={description ?? photo.name} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ boxShadow: "none" }} />
       </div>
       <div className="flex flex-col gap-3 min-w-0 flex-1">
         <div className="flex flex-col gap-1">

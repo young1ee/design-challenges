@@ -167,7 +167,7 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
               className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-pointer"
               style={{ top: 8, right: 8 }}
             >
-              <img src="/logo.svg" width="12" height="12" alt="" style={{ outline: "none" }} />
+              <img src="/logo.svg" width="12" height="12" alt="" style={{ boxShadow: "none" }} />
               <span className="text-xs tabular-nums" style={{ color: "var(--color-accent)" }}>
                 {designer.championYears.join(", ")}
               </span>
