@@ -16,7 +16,6 @@ import Avatar from "@/components/Avatar";
 import { Tooltip as Tip } from "@/components/Tooltip";
 import GlassButton from "@/components/GlassButton";
 import { CloseIcon } from "@/components/Icons";
-import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -303,53 +302,58 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
         </div>
 
         {/* Gallery modal */}
-        <Dialog.Root open={galleryOpen} onOpenChange={setGalleryOpen}>
-          <AnimatePresence>
-            {galleryOpen && (
-              <Dialog.Portal forceMount>
-                <Dialog.Overlay asChild>
-                  <motion.div
-                    className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                  />
-                </Dialog.Overlay>
-                <div className="fixed inset-0 z-50 overflow-y-auto flex min-h-full items-center justify-center p-6">
-                  <Dialog.Content asChild aria-describedby={undefined}>
-                    <motion.div
-                      className="w-full max-w-[400px] bg-surface rounded-2xl p-5 flex flex-col gap-4 my-auto"
-                      style={{ boxShadow: "var(--shadow-modal)" }}
-                      initial={{ opacity: 0, scale: 0.97, y: 6 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.97, y: 6 }}
-                      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <Dialog.Title className="text-base text-fg-secondary">Gallery</Dialog.Title>
-                        <Dialog.Close asChild>
-                          <GlassButton className="w-10 h-10 shrink-0">
-                            <CloseIcon size={16} />
-                          </GlassButton>
-                        </Dialog.Close>
-                      </div>
-                      <div style={{ columns: 2, columnGap: "12px" }}>
-                        {allPhotos.map((photo, i) => (
-                          <img
-                            key={i}
-                            src={photo.url}
-                            alt={photo.alt}
-                            className="w-full rounded-xl mb-3 break-inside-avoid"
-                            style={{ display: "block" }}
-                          />
-                        ))}
-                      </div>
-                    </motion.div>
-                  </Dialog.Content>
-                </div>
-              </Dialog.Portal>
-            )}
-          </AnimatePresence>
-        </Dialog.Root>
+        <AnimatePresence>
+          {galleryOpen && (
+            <>
+              <motion.div
+                className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                onClick={() => setGalleryOpen(false)}
+              />
+              <div
+                className="fixed inset-0 z-50 flex items-end sm:items-start sm:overflow-y-auto justify-center sm:py-[100px] sm:px-6 pointer-events-none"
+                onClick={() => setGalleryOpen(false)}
+              >
+                <motion.div
+                  className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto"
+                  style={{ boxShadow: "var(--shadow-modal)" }}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 24 }}
+                  transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
+                    <GlassButton onClick={() => setGalleryOpen(false)} className="absolute top-4 right-4 w-10 h-10">
+                      <CloseIcon />
+                    </GlassButton>
+
+                    <p className="text-xl text-fg-primary pr-14">Gallery</p>
+
+                    <div style={{ columns: 2, columnGap: "12px" }}>
+                      {allPhotos.map((photo, i) => (
+                        <img
+                          key={i}
+                          src={photo.url}
+                          alt={photo.alt}
+                          className="w-full rounded-xl mb-3 break-inside-avoid"
+                          style={{ display: "block" }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="hidden sm:flex justify-center">
+                      <GlassButton onClick={() => setGalleryOpen(false)} className="px-4 py-2.5 text-sm">
+                        Close
+                      </GlassButton>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </>
+          )}
+        </AnimatePresence>
 
         <div className="relative" style={{ zIndex: 1 }}>
           <Footer />
