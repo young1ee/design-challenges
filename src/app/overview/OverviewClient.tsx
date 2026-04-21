@@ -314,10 +314,10 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                     transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                   />
                 </Dialog.Overlay>
-                <div className="fixed inset-0 z-50 overflow-y-auto p-6">
+                <div className="fixed inset-0 z-50 overflow-y-auto flex min-h-full justify-center p-6">
                   <Dialog.Content asChild aria-describedby={undefined}>
                     <motion.div
-                      className="relative w-full max-w-2xl bg-surface rounded-2xl p-5 flex flex-col gap-5"
+                      className="relative w-full max-w-2xl bg-surface rounded-2xl p-5 flex flex-col gap-5 my-auto"
                       style={{ boxShadow: "var(--shadow-modal)" }}
                       initial={{ opacity: 0, scale: 0.97, y: 6 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
