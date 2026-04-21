@@ -39,7 +39,7 @@ export default function PromptCard({
       {/* Date + Prompt */}
       <div className="flex-1 flex flex-col gap-1 min-h-0">
         <p className="text-sm text-fg-muted">{date}</p>
-        <p className="text-base text-fg-primary leading-6 line-clamp-4">
+        <p className="text-base text-fg-primary leading-6 line-clamp-4 text-pretty">
           {prompt}
         </p>
       </div>

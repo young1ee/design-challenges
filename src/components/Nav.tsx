@@ -103,7 +103,7 @@ export default function Nav() {
               <DropdownMenu.Content
                 sideOffset={8}
                 align="start"
-                className="z-50 min-w-[140px] rounded-xl p-1 outline-none"
+                className="dropdown-content z-50 min-w-[140px] rounded-xl p-1 outline-none"
                 style={{
                   background: "var(--color-surface)",
                   boxShadow: "var(--shadow-modal)",
@@ -168,7 +168,7 @@ export default function Nav() {
                 <DropdownMenu.Content
                   sideOffset={8}
                   align="end"
-                  className="z-50 min-w-[140px] rounded-xl p-1 outline-none"
+                  className="dropdown-content z-50 min-w-[140px] rounded-xl p-1 outline-none"
                   style={{
                     background: "var(--color-surface)",
                     boxShadow: "var(--shadow-modal)",

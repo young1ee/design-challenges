@@ -131,7 +131,7 @@ function CircleProgress({ value, size = 96 }: { value: number; size?: number }) 
           strokeLinecap="round" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl text-fg-primary leading-none">{displayValue}%</span>
+        <span className="text-3xl text-fg-primary leading-none tabular-nums">{displayValue}%</span>
       </div>
     </div>
   );

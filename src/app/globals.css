@@ -98,8 +98,10 @@
   background: var(--color-glass-subtle);
 }
 
-.group:hover .btn-see-more {
-  background: var(--color-glass-hover);
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .btn-see-more {
+    background: var(--color-glass-hover);
+  }
 }
 
 /* Gradient border on prompt card hover */
@@ -123,8 +125,33 @@
   pointer-events: none;
 }
 
-.prompt-card:hover::before {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .prompt-card:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Dropdown animation */
+@keyframes dropdown-open {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dropdown-close {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+
+.dropdown-content {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+}
+
+.dropdown-content[data-state="open"] {
+  animation: dropdown-open 150ms var(--ease-out);
+}
+
+.dropdown-content[data-state="closed"] {
+  animation: dropdown-close 100ms ease-in forwards;
 }
 
 @layer utilities {
@@ -147,6 +174,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+img {
+  outline: 1px solid rgba(255, 255, 255, 0.10);
+  outline-offset: -1px;
 }
 
 
