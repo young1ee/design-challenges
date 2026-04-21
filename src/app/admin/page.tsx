@@ -1062,11 +1062,13 @@ function PhotosTab(_props, ref) {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const [{ data: files }, { data: settings }] = await Promise.all([
+      const [{ data: files }, { data: settings }, descs] = await Promise.all([
         supabase.storage.from("photos").list("overview"),
         supabase.from("settings").select("photo_order").single(),
+        getPhotoDescriptions().catch(() => ({} as Record<string, string>)),
       ]);
       if (!files) return;
+      setDescriptions(descs);
       const order: string[] = settings?.photo_order ?? [];
       const sorted = [
         ...order.map((name) => files.find((f) => f.name === name)).filter(Boolean),
@@ -1076,7 +1078,6 @@ function PhotosTab(_props, ref) {
         name: f.name,
         url: `${supabase.storage.from("photos").getPublicUrl(`overview/${f.name}`).data.publicUrl}?t=${f.updated_at ?? Date.now()}`,
       })));
-      getPhotoDescriptions().then(setDescriptions).catch(() => {});
     }
     load();
   }, []);
@@ -1094,7 +1095,7 @@ function PhotosTab(_props, ref) {
       const newPhotos = [...photos, { name, url: `${url}?t=${Date.now()}` }];
       setPhotos(newPhotos);
       await updatePhotoOrder(newPhotos.map((p) => p.name));
-    } catch { /* silent */ }
+    } catch {}
     setUploading(false);
   }
 
