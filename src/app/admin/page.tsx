@@ -1087,11 +1087,14 @@ function PhotosTab({ seasons: _seasons }, ref) {
               style={{ boxShadow: "var(--shadow-default)" }}
             >
               <img src={photo.url} alt={descriptions[photo.name] ?? ""} className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                {descriptions[photo.name] && (
-                  <span className="text-sm text-fg-primary truncate">{descriptions[photo.name]}</span>
-                )}
-                <span className="text-sm text-fg-muted truncate">{photo.name}</span>
+              <div className="flex flex-col gap-3 min-w-0 flex-1">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-fg-muted truncate">{photo.name}</span>
+                    {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10 shrink-0">Visible</span>}
+                  </div>
+                  <p className="text-sm text-fg-primary">{descriptions[photo.name] ?? <span className="text-fg-muted italic">No description</span>}</p>
+                </div>
                 <button
                   onClick={() => setEditingDesc(photo)}
                   className="w-fit text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 cursor-pointer outline-none transition-colors duration-150"
@@ -1099,7 +1102,6 @@ function PhotosTab({ seasons: _seasons }, ref) {
                   {descriptions[photo.name] ? "Edit description" : "Add description"}
                 </button>
               </div>
-              {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Visible</span>}
               <GlassButton className="shrink-0 w-10 h-10" onClick={() => handleRemove(photo.name)}>
                 <CloseIcon size={16} />
               </GlassButton>
