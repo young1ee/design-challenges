@@ -14,6 +14,8 @@ import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
 import Avatar from "@/components/Avatar";
 import { Tooltip as Tip } from "@/components/Tooltip";
+import GlassButton from "@/components/GlassButton";
+import { CloseIcon } from "@/components/Icons";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence } from "framer-motion";
 
@@ -294,13 +296,9 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
           </div>
 
           {allPhotos.length > 5 && (
-            <button
-              onClick={() => setGalleryOpen(true)}
-              className="relative z-10 px-4 py-2 rounded-lg text-sm text-fg-secondary hover:text-fg-primary transition-[color,background-color] duration-150 cursor-pointer"
-              style={{ background: "var(--color-glass-subtle)" }}
-            >
-              View all · {allPhotos.length}
-            </button>
+            <GlassButton className="relative z-10 px-4 py-2.5 text-sm" onClick={() => setGalleryOpen(true)}>
+              Open Gallery
+            </GlassButton>
           )}
         </div>
 
@@ -328,10 +326,10 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                     >
                       <div className="flex items-center justify-between">
                         <Dialog.Title className="text-base text-fg-secondary">Gallery · {allPhotos.length} photos</Dialog.Title>
-                        <Dialog.Close className="w-8 h-8 flex items-center justify-center rounded-lg text-fg-muted hover:text-fg-primary hover:bg-glass-hover transition-colors duration-150 cursor-pointer">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                          </svg>
+                        <Dialog.Close asChild>
+                          <GlassButton className="w-10 h-10 shrink-0">
+                            <CloseIcon size={16} />
+                          </GlassButton>
                         </Dialog.Close>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
