@@ -1045,12 +1045,12 @@ function PhotosTab({ seasons: _seasons }, ref) {
               key={photo.name}
               value={photo}
               onDragEnd={handleDragEnd}
-              className="flex items-center gap-3 p-2 rounded-xl cursor-grab active:cursor-grabbing"
-              style={{ background: "var(--color-glass-subtle)" }}
+              className="flex items-center gap-3 p-5 rounded-2xl bg-surface cursor-grab active:cursor-grabbing"
+              style={{ boxShadow: "var(--shadow-default)" }}
             >
               <img src={photo.url} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
               <span className="flex-1 text-sm text-fg-muted truncate">{photo.name}</span>
-              {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>}
+              {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Visible</span>}
               <GlassButton className="shrink-0 w-10 h-10" onClick={() => handleRemove(photo.name)}>
                 <CloseIcon size={16} />
               </GlassButton>
@@ -1349,9 +1349,7 @@ export default function AdminPage() {
                   Add image
                 </GlassButton>
               </div>}
-              <div className="p-5 rounded-2xl bg-surface" style={{ boxShadow: "var(--shadow-default)" }}>
-                <PhotosTab ref={photosTabRef} seasons={seasons} />
-              </div>
+              <PhotosTab ref={photosTabRef} seasons={seasons} />
             </>
           )}
 
