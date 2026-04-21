@@ -1051,8 +1051,8 @@ function PhotosTab({ seasons: _seasons }, ref) {
               <img src={photo.url} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
               <span className="flex-1 text-sm text-fg-muted truncate">{photo.name}</span>
               {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>}
-              <GlassButton className="shrink-0 w-8 h-8" onClick={() => handleRemove(photo.name)}>
-                <CloseIcon size={14} />
+              <GlassButton className="shrink-0 w-10 h-10" onClick={() => handleRemove(photo.name)}>
+                <CloseIcon size={16} />
               </GlassButton>
             </Reorder.Item>
           ))}
@@ -1349,7 +1349,9 @@ export default function AdminPage() {
                   Add image
                 </GlassButton>
               </div>}
-              <PhotosTab ref={photosTabRef} seasons={seasons} />
+              <div className="p-5 rounded-2xl bg-surface" style={{ boxShadow: "var(--shadow-default)" }}>
+                <PhotosTab ref={photosTabRef} seasons={seasons} />
+              </div>
             </>
           )}
 
