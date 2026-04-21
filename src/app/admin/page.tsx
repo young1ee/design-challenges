@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, forwardRef } from "react";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
 import Nav from "@/components/Nav";
@@ -13,6 +13,7 @@ import GlassButton from "@/components/GlassButton";
 import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
 import { ChevronDown, CloseIcon, CheckIcon } from "@/components/Icons";
+import { updatePhotoOrder } from "@/app/actions/settings";
 
 const inviteCallbackUrl = () =>
   `${window.location.origin}/auth/callback?next=/auth/confirm`;
@@ -961,70 +962,106 @@ function YearDropdown({ value, onChange }: { value: number; onChange: (y: number
 
 // ─── Photos tab ───────────────────────────────────────────────────────────────
 
-function PhotosTab({ seasons }: { seasons: DbSeason[] }) {
-  // ── Overview collage ───────────────────────────────────────────────────────
-  const [previews, setPreviews] = useState<(string | null)[]>([null, null, null, null, null]);
+interface GalleryPhoto { name: string; url: string; }
+interface PhotosTabHandle { triggerAdd: () => void; }
+
+const PhotosTab = forwardRef<PhotosTabHandle, { seasons: DbSeason[] }>(
+function PhotosTab({ seasons: _seasons }, ref) {
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef<GalleryPhoto[]>([]);
+  photosRef.current = photos;
+
+  useImperativeHandle(ref, () => ({ triggerAdd: () => fileInputRef.current?.click() }));
 
   useEffect(() => {
-    const supabase = createClient();
-    Promise.all([1, 2, 3, 4, 5].map(async (n) => {
-      const { data } = await supabase.storage.from("photos").list("overview", { search: String(n) });
-      const match = data?.find((f) => f.name.startsWith(String(n)));
-      if (!match) return null;
-      const url = supabase.storage.from("photos").getPublicUrl(`overview/${match.name}`).data.publicUrl;
-      return `${url}?t=${match.updated_at ?? Date.now()}`;
-    })).then((urls) => setPreviews(urls));
+    async function load() {
+      const supabase = createClient();
+      const [{ data: files }, { data: settings }] = await Promise.all([
+        supabase.storage.from("photos").list("overview"),
+        supabase.from("settings").select("photo_order").single(),
+      ]);
+      if (!files) return;
+      const order: string[] = settings?.photo_order ?? [];
+      const sorted = [
+        ...order.map((name) => files.find((f) => f.name === name)).filter(Boolean),
+        ...files.filter((f) => !order.includes(f.name)),
+      ] as typeof files;
+      setPhotos(sorted.map((f) => ({
+        name: f.name,
+        url: `${supabase.storage.from("photos").getPublicUrl(`overview/${f.name}`).data.publicUrl}?t=${f.updated_at ?? Date.now()}`,
+      })));
+    }
+    load();
   }, []);
 
-  async function handlePick(index: number, file: File) {
-    const supabase = createClient();
-    // Remove all existing files for this slot before uploading (avoids stale duplicates)
-    const { data: existing } = await supabase.storage.from("photos").list("overview", { search: String(index + 1) });
-    const old = existing?.filter((f) => f.name.startsWith(String(index + 1)));
-    if (old?.length) await supabase.storage.from("photos").remove(old.map((f) => `overview/${f.name}`));
-
-    const ext = file.name.split(".").pop();
-    const path = `overview/${index + 1}.${ext}`;
-    try {
-      const url = await uploadImage("photos", path, file);
-      setPreviews((p) => p.map((v, i) => i === index ? `${url}?t=${Date.now()}` : v));
-    } catch {
-      // silent
-    }
+  async function handleDragEnd() {
+    await updatePhotoOrder(photosRef.current.map((p) => p.name));
   }
 
-  async function handleRemove(index: number) {
+  async function handleAdd(file: File) {
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const name = `photo_${Date.now()}.${ext}`;
+    try {
+      const url = await uploadImage("photos", `overview/${name}`, file);
+      const newPhotos = [...photos, { name, url: `${url}?t=${Date.now()}` }];
+      setPhotos(newPhotos);
+      await updatePhotoOrder(newPhotos.map((p) => p.name));
+    } catch { /* silent */ }
+    setUploading(false);
+  }
+
+  async function handleRemove(name: string) {
     const supabase = createClient();
-    const { data } = await supabase.storage.from("photos").list("overview", { search: String(index + 1) });
-    const match = data?.find((f) => f.name.startsWith(String(index + 1)));
-    if (match) await supabase.storage.from("photos").remove([`overview/${match.name}`]);
-    setPreviews((p) => p.map((v, i) => i === index ? null : v));
+    await supabase.storage.from("photos").remove([`overview/${name}`]);
+    const newPhotos = photos.filter((p) => p.name !== name);
+    setPhotos(newPhotos);
+    await updatePhotoOrder(newPhotos.map((p) => p.name));
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      {/* Overview collage */}
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <p className="text-base text-fg-primary">Overview collage</p>
-          <p className="text-sm text-fg-muted">5 photos shown in the draggable collage at the bottom of the Overview page.</p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {previews.map((preview, i) => (
-            <ThumbnailPicker
-              key={i}
-              preview={preview}
-              onPick={(f) => handlePick(i, f)}
-              onRemove={preview ? () => handleRemove(i) : undefined}
-              emptyLabel=""
-              className={`h-[160px]${!previews[i] ? " border-[0.5px] border-line" : ""}`}
-            />
-          ))}
-        </div>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <p className="text-base text-fg-primary">Overview collage</p>
+        <p className="text-sm text-fg-muted">First 5 appear in the draggable collage. Drag to reorder.</p>
       </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAdd(f); e.target.value = ""; }}
+      />
+
+      {photos.length === 0 ? (
+        <p className="text-sm text-fg-muted">No photos yet.</p>
+      ) : (
+        <Reorder.Group as="div" axis="y" values={photos} onReorder={setPhotos} className="flex flex-col gap-2">
+          {photos.map((photo, i) => (
+            <Reorder.Item
+              as="div"
+              key={photo.name}
+              value={photo}
+              onDragEnd={handleDragEnd}
+              className="flex items-center gap-3 p-2 rounded-xl cursor-grab active:cursor-grabbing"
+              style={{ background: "var(--color-glass-subtle)" }}
+            >
+              <img src={photo.url} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
+              <span className="flex-1 text-sm text-fg-muted truncate">{photo.name}</span>
+              {i < 5 && <span className="text-xs px-2 py-0.5 rounded-full text-success bg-success/10">Active</span>}
+              <GlassButton className="shrink-0 w-8 h-8" onClick={() => handleRemove(photo.name)}>
+                <CloseIcon size={14} />
+              </GlassButton>
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
+      )}
     </div>
   );
-}
+});
+PhotosTab.displayName = "PhotosTab";
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -1036,6 +1073,7 @@ export default function AdminPage() {
   const [modal, setModal] = useState<ActiveModal>(null);
   const [viewingAs, setViewingAs] = useState<DbDesigner | null>(null);
   const [greeting, setGreeting] = useState(greetings[0]);
+  const photosTabRef = useRef<PhotosTabHandle>(null);
   useEffect(() => { setGreeting(greetings[Math.floor(Math.random() * greetings.length)]); }, []);
 
   const [userName, setUserName] = useState("");
@@ -1305,7 +1343,14 @@ export default function AdminPage() {
           )}
 
           {activeTab === "photos" && (
-            <PhotosTab seasons={seasons} />
+            <>
+              {effectiveIsAdmin && <div className="flex justify-end">
+                <GlassButton className="px-4 py-2.5 text-sm" onClick={() => photosTabRef.current?.triggerAdd()}>
+                  Add image
+                </GlassButton>
+              </div>}
+              <PhotosTab ref={photosTabRef} seasons={seasons} />
+            </>
           )}
 
         </div>

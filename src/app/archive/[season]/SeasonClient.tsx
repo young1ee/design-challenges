@@ -18,6 +18,7 @@ import Particles from "@/components/Particles";
 import DotGrid from "@/components/DotGrid";
 import Avatar from "@/components/Avatar";
 import Leaderboard, { type LeaderboardRow } from "@/components/Leaderboard";
+import { Tooltip as Tip } from "@/components/Tooltip";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -236,15 +237,15 @@ function Season3Layout({
             <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} color="#9333ea" className="w-full h-full" />
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, transparent 20%, var(--color-canvas) 80%)" }} />
           </div>
-          <div
-            className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full"
-            style={{ border: "0.5px solid var(--color-line)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "var(--color-warning)" }}>
-              <path d="M8 21h8M12 17v4M7 4H4v4a5 5 0 0 0 3 4.58M17 4h3v4a5 5 0 0 1-3 4.58M12 17a5 5 0 0 1-5-5V4h10v8a5 5 0 0 1-5 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="text-sm" style={{ color: "var(--color-warning)" }}>{year} Champion</span>
-          </div>
+          <Tip content={`${champion.name} – the star that guided ${year}`}>
+            <div
+              className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-default"
+              style={{ border: "0.5px solid rgba(57, 255, 62, 0.3)" }}
+            >
+              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ outline: "none" }} />
+              <span className="text-sm" style={{ color: "var(--color-accent)" }}>{year} North Star</span>
+            </div>
+          </Tip>
           <Avatar name={champion.name} src={champion.avatarUrl} className="relative z-10 w-[120px] h-[120px] text-2xl" />
           <p className="text-[36px] text-fg-primary leading-10 tracking-[-0.8px]">{champion.name}</p>
           <div className="flex items-start justify-center gap-12">
@@ -458,15 +459,15 @@ function OldSeasonLayout({
             <DotGrid repelRadius={120} repelStrength={8} gap={20} dotSize={1} color="#9333ea" className="w-full h-full" />
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, transparent 20%, var(--color-canvas) 80%)" }} />
           </div>
-          <div
-            className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full"
-            style={{ border: "0.5px solid var(--color-line)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ color: "var(--color-warning)" }}>
-              <path d="M8 21h8M12 17v4M7 4H4v4a5 5 0 0 0 3 4.58M17 4h3v4a5 5 0 0 1-3 4.58M12 17a5 5 0 0 1-5-5V4h10v8a5 5 0 0 1-5 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="text-sm" style={{ color: "var(--color-warning)" }}>{year} Champion</span>
-          </div>
+          <Tip content={`${champion.name} – the star that guided ${year}`}>
+            <div
+              className="relative z-10 inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-default"
+              style={{ border: "0.5px solid rgba(57, 255, 62, 0.3)" }}
+            >
+              <img src="/logo.svg" width="16" height="16" alt="" className="shrink-0" style={{ outline: "none" }} />
+              <span className="text-sm" style={{ color: "var(--color-accent)" }}>{year} North Star</span>
+            </div>
+          </Tip>
           <Avatar name={champion.name} src={champion.avatarUrl} className="relative z-10 w-[120px] h-[120px] text-2xl" />
           <p className="text-[36px] text-fg-primary leading-10 tracking-[-0.8px]">{champion.name}</p>
         </section>

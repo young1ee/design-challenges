@@ -13,6 +13,9 @@ import SectionLabel from "@/components/SectionLabel";
 import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
 import Avatar from "@/components/Avatar";
+import { Tooltip as Tip } from "@/components/Tooltip";
+import * as Dialog from "@radix-ui/react-dialog";
+import { AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,7 +41,8 @@ export interface DesignerItem {
 export interface OverviewClientProps {
   stats: StatItem[];
   designers: DesignerItem[];
-  photos: (string | null)[];
+  photos: string[];
+  allPhotos: string[];
 }
 
 // ─── Animated stat number ─────────────────────────────────────────────────────
@@ -129,18 +133,6 @@ function StatCard({ stat }: { stat: StatItem }) {
   );
 }
 
-// ─── Trophy icon ──────────────────────────────────────────────────────────────
-
-function TrophyIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0" style={{ color: "var(--color-warning)" }}>
-      <path d="M8 10c-1.657 0-3-1.343-3-3V3h6v4c0 1.657-1.343 3-3 3z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M5 3H2.5v2a2.5 2.5 0 002 2.449M11 3h2.5v2a2.5 2.5 0 01-2 2.449" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M8 10v2.5M6 12.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // ─── Designer card ────────────────────────────────────────────────────────────
 
 function DesignerCard({ designer }: { designer: DesignerItem }) {
@@ -157,12 +149,14 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
           <p className="text-sm text-fg-secondary">{designer.subtitle}</p>
         </div>
         {designer.championYears.length > 0 && (
-          <div className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated" style={{ top: 8, right: 8 }}>
-            <TrophyIcon />
-            <span className="text-xs tabular-nums" style={{ color: "var(--color-warning)" }}>
-              {designer.championYears.join(", ")}
-            </span>
-          </div>
+          <Tip content={`${designer.name} – the star that guided ${designer.championYears.join(" & ")}`}>
+            <div className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-default" style={{ top: 8, right: 8 }}>
+              <img src="/logo.svg" width="12" height="12" alt="" style={{ outline: "none" }} />
+              <span className="text-xs tabular-nums" style={{ color: "var(--color-accent)" }}>
+                {designer.championYears.join(", ")}
+              </span>
+            </div>
+          </Tip>
         )}
       </div>
 
@@ -171,7 +165,7 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
         {[
           { label: "Entries",       value: designer.entries },
           { label: "Wins",          value: designer.wins },
-          { label: "Participation", value: designer.participation },
+          { label: "Participation %", value: designer.participation },
         ].map(({ label, value }) => (
           <div key={label} className="flex flex-col gap-0.5">
             <p className="text-sm text-fg-muted">{label}</p>
@@ -185,11 +179,12 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function OverviewClient({ stats, designers, photos }: OverviewClientProps) {
+export default function OverviewClient({ stats, designers, photos, allPhotos }: OverviewClientProps) {
   const active = designers.filter((d) => d.isActive);
   const former = designers.filter((d) => !d.isActive);
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
     check();
@@ -248,52 +243,113 @@ export default function OverviewClient({ stats, designers, photos }: OverviewCli
         )}
 
         {/* Draggable photo collage */}
-        <div className="relative w-full h-[420px] mt-20">
-          <div
-            className="absolute pointer-events-none"
-            style={{ top: 0, bottom: "-300px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}
-          >
-            <Particles quantity={150} className="w-full h-full" />
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative w-full h-[420px]">
+            <div
+              className="absolute pointer-events-none"
+              style={{ top: 0, bottom: "-300px", left: "calc(50% - 50vw)", right: "calc(50% - 50vw)", zIndex: 0 }}
+            >
+              <Particles quantity={150} className="w-full h-full" />
+            </div>
+
+            {(isMobile ? [
+              { left: "2%",  top: "2%",  rotate: -4, width: 155 },
+              { left: "38%", top: "0%",  rotate:  3, width: 150 },
+              { left: "58%", top: "10%", rotate: -2, width: 140 },
+              { left: "4%",  top: "48%", rotate:  2, width: 155 },
+              { left: "44%", top: "44%", rotate: -3, width: 145 },
+            ] : [
+              { left: "0%",  top: "10%", rotate: -4, width: 220 },
+              { left: "18%", top: "0%",  rotate:  3, width: 240 },
+              { left: "38%", top: "8%",  rotate: -2, width: 200 },
+              { left: "56%", top: "2%",  rotate:  5, width: 230 },
+              { left: "72%", top: "12%", rotate: -3, width: 210 },
+            ]).map((photo, i) => (
+              <motion.div
+                key={i}
+                drag={!prefersReducedMotion}
+                dragMomentum={false}
+                whileDrag={prefersReducedMotion ? {} : { scale: 1.05, zIndex: 10 }}
+                initial={{ rotate: photo.rotate }}
+                style={{
+                  position: "absolute",
+                  left: photo.left,
+                  top: photo.top,
+                  width: photo.width,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  cursor: "grab",
+                  zIndex: i + 1,
+                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+                }}
+              >
+                {photos[i]
+                  ? <img src={photos[i]} alt="" draggable={false} style={{ width: "100%", height: "auto", display: "block" }} />
+                  : <div style={{ width: "100%", aspectRatio: "4/3", background: "var(--color-elevated)" }} />
+                }
+              </motion.div>
+            ))}
           </div>
 
-          {(isMobile ? [
-            { left: "2%",  top: "2%",  rotate: -4, width: 155 },
-            { left: "38%", top: "0%",  rotate:  3, width: 150 },
-            { left: "58%", top: "10%", rotate: -2, width: 140 },
-            { left: "4%",  top: "48%", rotate:  2, width: 155 },
-            { left: "44%", top: "44%", rotate: -3, width: 145 },
-          ] : [
-            { left: "0%",  top: "10%", rotate: -4, width: 220 },
-            { left: "18%", top: "0%",  rotate:  3, width: 240 },
-            { left: "38%", top: "8%",  rotate: -2, width: 200 },
-            { left: "56%", top: "2%",  rotate:  5, width: 230 },
-            { left: "72%", top: "12%", rotate: -3, width: 210 },
-          ]).map((photo, i) => (
-            <motion.div
-              key={i}
-              drag={!prefersReducedMotion}
-              dragMomentum={false}
-              whileDrag={prefersReducedMotion ? {} : { scale: 1.05, zIndex: 10 }}
-              initial={{ rotate: photo.rotate }}
-              style={{
-                position: "absolute",
-                left: photo.left,
-                top: photo.top,
-                width: photo.width,
-                borderRadius: 12,
-                overflow: "hidden",
-                cursor: "grab",
-                zIndex: i + 1,
-                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-              }}
+          {allPhotos.length > 5 && (
+            <button
+              onClick={() => setGalleryOpen(true)}
+              className="relative z-10 px-4 py-2 rounded-lg text-sm text-fg-secondary hover:text-fg-primary transition-[color,background-color] duration-150 cursor-pointer"
+              style={{ background: "var(--color-glass-subtle)" }}
             >
-              {photos[i]
-                ? <img src={photos[i]!} alt="" draggable={false} style={{ width: "100%", height: "auto", display: "block" }} />
-                : <div style={{ width: "100%", aspectRatio: "4/3", background: "var(--color-elevated)" }} />
-              }
-            </motion.div>
-          ))}
+              View all · {allPhotos.length}
+            </button>
+          )}
         </div>
+
+        {/* Gallery modal */}
+        <Dialog.Root open={galleryOpen} onOpenChange={setGalleryOpen}>
+          <AnimatePresence>
+            {galleryOpen && (
+              <Dialog.Portal forceMount>
+                <Dialog.Overlay asChild>
+                  <motion.div
+                    className="fixed inset-0 z-40 bg-canvas/70 backdrop-blur-sm"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                  />
+                </Dialog.Overlay>
+                <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6">
+                  <Dialog.Content asChild aria-describedby={undefined}>
+                    <motion.div
+                      className="relative w-full max-w-2xl mx-auto bg-surface rounded-2xl p-5 flex flex-col gap-5"
+                      style={{ boxShadow: "var(--shadow-modal)" }}
+                      initial={{ opacity: 0, scale: 0.97, y: 6 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.97, y: 6 }}
+                      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <Dialog.Title className="text-base text-fg-secondary">Gallery · {allPhotos.length} photos</Dialog.Title>
+                        <Dialog.Close className="w-8 h-8 flex items-center justify-center rounded-lg text-fg-muted hover:text-fg-primary hover:bg-glass-hover transition-colors duration-150 cursor-pointer">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </Dialog.Close>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {allPhotos.map((url, i) => (
+                          <img
+                            key={i}
+                            src={url}
+                            alt=""
+                            className="w-full rounded-xl object-cover"
+                            style={{ aspectRatio: "4/3" }}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  </Dialog.Content>
+                </div>
+              </Dialog.Portal>
+            )}
+          </AnimatePresence>
+        </Dialog.Root>
 
         <div className="relative" style={{ zIndex: 1 }}>
           <Footer />

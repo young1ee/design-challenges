@@ -1,6 +1,7 @@
 import OverviewClient from "./OverviewClient";
 import { getSeasons, getActiveDesigners, getSeasonLeaderboard } from "@/lib/db/queries";
 import { createClient } from "@/lib/supabase/server";
+import { getPhotoOrder } from "@/app/actions/settings";
 
 export default async function OverviewPage() {
   const supabase = await createClient();
@@ -9,17 +10,21 @@ export default async function OverviewPage() {
     getActiveDesigners(),
   ]);
 
-  // Fetch overview collage photos (slots 1–5 stored as overview/1, overview/2, … in photos bucket)
-  const photos = await Promise.all(
-    [1, 2, 3, 4, 5].map(async (n) => {
-      const { data } = await supabase.storage.from("photos").list("overview", { search: String(n) });
-      if (!data?.length) return null;
-      const match = data.find((f) => f.name.startsWith(String(n)));
-      if (!match) return null;
-      const url = supabase.storage.from("photos").getPublicUrl(`overview/${match.name}`).data.publicUrl;
-      return `${url}?t=${match.updated_at ?? match.created_at ?? ""}`;
-    })
-  );
+  // Fetch all overview collage photos from storage, ordered by saved photo_order
+  const [{ data: photoFiles }, photoOrder] = await Promise.all([
+    supabase.storage.from("photos").list("overview"),
+    getPhotoOrder(),
+  ]);
+  const files = photoFiles ?? [];
+  const ordered = [
+    ...photoOrder.map((name) => files.find((f) => f.name === name)).filter(Boolean),
+    ...files.filter((f) => !photoOrder.includes(f.name)),
+  ] as typeof files;
+  const allPhotos = ordered.map((f) => {
+    const url = supabase.storage.from("photos").getPublicUrl(`overview/${f.name}`).data.publicUrl;
+    return `${url}?t=${f.updated_at ?? f.created_at ?? ""}`;
+  });
+  const photos = allPhotos.slice(0, 5);
   const sortedSeasons = [...seasons].sort((a, b) => a.number - b.number); // oldest → newest for charts
 
   // Fetch leaderboard for each season in parallel
@@ -199,5 +204,5 @@ export default async function OverviewPage() {
     };
   });
 
-  return <OverviewClient stats={stats} designers={mappedDesigners} photos={photos} />;
+  return <OverviewClient stats={stats} designers={mappedDesigners} photos={photos} allPhotos={allPhotos} />;
 }
