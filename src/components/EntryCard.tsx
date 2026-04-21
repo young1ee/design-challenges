@@ -49,7 +49,7 @@ export default function EntryCard({
         {/* Gradient border overlay on hover */}
         {prototypeUrl && (
           <div
-            className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="entry-thumbnail-overlay absolute inset-0 rounded-xl pointer-events-none"
             style={{
               padding: "1px",
               background: "radial-gradient(ellipse at 0% 0%, var(--color-accent) 0%, transparent 60%)",
@@ -76,7 +76,7 @@ export default function EntryCard({
             href={prototypeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-lg bg-surface group-hover:bg-elevated text-fg-secondary group-hover:text-fg-primary transition-[transform,color,background-color] duration-150 active:scale-[0.97]"
+            className="entry-proto-btn absolute top-2 right-2 w-10 h-10 flex items-center justify-center rounded-lg transition-[transform,color,background-color] duration-150 active:scale-[0.97]"
             style={{ boxShadow: "var(--shadow-btn)" }}
             onClick={(e) => e.stopPropagation()}
           >

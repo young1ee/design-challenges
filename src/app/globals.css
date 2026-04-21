@@ -93,6 +93,31 @@
   }
 }
 
+/* Entry card thumbnail overlay — gradient border on hover */
+.entry-thumbnail-overlay {
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .entry-thumbnail-overlay {
+    opacity: 1;
+  }
+}
+
+/* Entry card prototype button — reacts to card hover */
+.entry-proto-btn {
+  background-color: var(--color-surface);
+  color: var(--color-fg-secondary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .entry-proto-btn {
+    background-color: var(--color-elevated);
+    color: var(--color-fg-primary);
+  }
+}
+
 /* See more button — background responds to card (group) hover */
 .btn-see-more {
   background: var(--color-glass-subtle);
@@ -151,7 +176,7 @@
 }
 
 .dropdown-content[data-state="closed"] {
-  animation: dropdown-close 100ms ease-in forwards;
+  animation: dropdown-close 100ms var(--ease-out) forwards;
 }
 
 @layer utilities {
