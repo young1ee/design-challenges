@@ -1,5 +1,8 @@
 "use client";
 
+const inviteCallbackUrl = () =>
+  `${window.location.origin}/auth/callback?next=/auth/confirm`;
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -714,7 +717,7 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
 
     // Send invite email if email provided
     if (email) {
-      const confirmUrl = `${window.location.origin}/auth/callback?next=/auth/confirm`;
+      const confirmUrl = inviteCallbackUrl();
       const { error: inviteErr } = await inviteDesigner(email, confirmUrl);
       if (inviteErr) { setSaving(false); setError(`Designer saved, but invite failed: ${inviteErr}`); return; }
     }
@@ -1084,7 +1087,7 @@ export default function AdminPage() {
       // Match to designer by slug (first part of email before @ or .)
       const slug = email.split("@")[0].split(".")[0].toLowerCase();
       const { data } = await supabase.from("designers").select("id, slug").eq("slug", slug).maybeSingle();
-      if (data) { setMyDesignerId(data.id); setMyDesignerSlug(data.slug); }
+      if (data) { setMyDesignerId(data.id); setMyDesignerSlug(slug); }
       // Auto-link auth account to designer row if not yet set
       if (session) linkDesignerAccount();
     });

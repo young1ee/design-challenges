@@ -17,10 +17,12 @@ export async function GET(request: Request) {
     }
   }
 
-  if (token_hash && type) {
+  const validTypes = ["invite", "email", "recovery", "email_change"] as const;
+  type OtpType = typeof validTypes[number];
+  if (token_hash && validTypes.includes(type as OtpType)) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash,
-      type: type as "invite" | "email" | "recovery" | "email_change",
+      type: type as OtpType,
     });
     if (!error) {
       return NextResponse.redirect(new URL(next, origin));

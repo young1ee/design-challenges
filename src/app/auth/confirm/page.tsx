@@ -20,6 +20,11 @@ export default function ConfirmPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
+    // Fallback: cookie may not be committed before getSession() fires on fast connections
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) { setReady(true); subscription.unsubscribe(); }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
