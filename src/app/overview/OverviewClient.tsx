@@ -157,17 +157,15 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
         </div>
         {designer.championYears.length > 0 && (
           <Tip content={`${designer.name} – the star that guided ${designer.championYears.join(" & ")}`}>
-            <motion.div
-              whileHover={{ scale: 1.06, filter: "drop-shadow(0 4px 8px rgba(57,255,62,0.25))" }}
-              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-pointer"
+            <div
+              className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-default"
               style={{ top: 8, right: 8 }}
             >
               <img src="/logo.svg" width="12" height="12" alt="" style={{ boxShadow: "none" }} />
               <span className="text-xs tabular-nums" style={{ color: "var(--color-accent)" }}>
                 {designer.championYears.join(", ")}
               </span>
-            </motion.div>
+            </div>
           </Tip>
         )}
       </div>
