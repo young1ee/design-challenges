@@ -98,9 +98,7 @@ function StatCard({ stat }: { stat: StatItem }) {
   const gradId = `grad-overview-${stat.label.replace(/[\s/%]/g, "-").toLowerCase()}`;
 
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+    <div
       className="h-[220px] p-5 rounded-2xl bg-surface flex flex-col justify-between cursor-default"
       style={{ boxShadow: "var(--shadow-default)" }}
     >
@@ -138,7 +136,7 @@ function StatCard({ stat }: { stat: StatItem }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -146,9 +144,7 @@ function StatCard({ stat }: { stat: StatItem }) {
 
 function DesignerCard({ designer }: { designer: DesignerItem }) {
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+    <div
       className="relative p-5 rounded-2xl bg-surface flex flex-col gap-12 overflow-hidden cursor-default"
       style={{ boxShadow: "var(--shadow-default)" }}
     >
@@ -189,7 +185,7 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
           </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
