@@ -66,8 +66,7 @@ export default async function OverviewPage() {
     const uniqueWinners = lb.filter((d) => Number(d.first_place) > 0).length;
     const avgEntries = challengeCount > 0 ? +(entryCount / challengeCount).toFixed(1) : 0;
 
-    // Participation = entries / (challenges × eligible designers for this season)
-    const eligibleCount = allDesigners.filter((d) => isEligible(d, i)).length;
+    const eligibleCount = designerCount;
     const participation =
       eligibleCount > 0 && challengeCount > 0
         ? Math.round((entryCount / (challengeCount * eligibleCount)) * 100)

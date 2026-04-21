@@ -22,6 +22,17 @@ export function ChevronDown() {
   );
 }
 
+export function DragHandleIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <circle cx="5.5" cy="5.5" r="1.5" fill="currentColor" />
+      <circle cx="10.5" cy="5.5" r="1.5" fill="currentColor" />
+      <circle cx="5.5" cy="10.5" r="1.5" fill="currentColor" />
+      <circle cx="10.5" cy="10.5" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function ArrowUpRightIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

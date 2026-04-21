@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { animate, motion, useInView, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
+import { animate, motion, useInView, useReducedMotion, useDragControls } from "framer-motion";
 import {
   BarChart, Bar,
   AreaChart, Area,
@@ -97,7 +98,12 @@ function StatCard({ stat }: { stat: StatItem }) {
   const gradId = `grad-overview-${stat.label.replace(/[\s/%]/g, "-").toLowerCase()}`;
 
   return (
-    <div className="h-[220px] p-5 rounded-2xl bg-surface flex flex-col justify-between" style={{ boxShadow: "var(--shadow-default)" }}>
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      className="h-[220px] p-5 rounded-2xl bg-surface flex flex-col justify-between cursor-default"
+      style={{ boxShadow: "var(--shadow-default)" }}
+    >
       <div className="flex flex-col gap-1">
         <p className="text-sm text-fg-secondary">{stat.label}</p>
         <AnimatedStatValue value={stat.value} />
@@ -132,7 +138,7 @@ function StatCard({ stat }: { stat: StatItem }) {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -140,8 +146,10 @@ function StatCard({ stat }: { stat: StatItem }) {
 
 function DesignerCard({ designer }: { designer: DesignerItem }) {
   return (
-    <div
-      className="relative p-5 rounded-2xl bg-surface flex flex-col gap-12 overflow-hidden"
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      className="relative p-5 rounded-2xl bg-surface flex flex-col gap-12 overflow-hidden cursor-default"
       style={{ boxShadow: "var(--shadow-default)" }}
     >
       {/* Header: avatar + name + champion badge(s) */}
@@ -153,12 +161,17 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
         </div>
         {designer.championYears.length > 0 && (
           <Tip content={`${designer.name} – the star that guided ${designer.championYears.join(" & ")}`}>
-            <div className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-default" style={{ top: 8, right: 8 }}>
+            <motion.div
+              whileHover={{ scale: 1.06, filter: "drop-shadow(0 4px 8px rgba(57,255,62,0.25))" }}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-pointer"
+              style={{ top: 8, right: 8 }}
+            >
               <img src="/logo.svg" width="12" height="12" alt="" style={{ outline: "none" }} />
               <span className="text-xs tabular-nums" style={{ color: "var(--color-accent)" }}>
                 {designer.championYears.join(", ")}
               </span>
-            </div>
+            </motion.div>
           </Tip>
         )}
       </div>
@@ -176,7 +189,7 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
           </div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -188,12 +201,35 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const dragControls = useDragControls();
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+  const startDragFromHandle = useCallback((e: React.PointerEvent) => {
+    if (isMobile) dragControls.start(e);
+  }, [isMobile, dragControls]);
+  const startDragFromScroll = useCallback((e: React.PointerEvent) => {
+    if (!isMobile) return;
+    const el = contentScrollRef.current;
+    if (el && el.scrollTop === 0) dragControls.start(e);
+  }, [isMobile, dragControls]);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useScrollLock(galleryOpen, isMobile);
+
+  const dur = (ms: number) => prefersReducedMotion ? 0 : ms;
+  const ease = [0.23, 1, 0.32, 1] as const;
+  const galleryInitial = isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 8 };
+  const galleryAnimate = isMobile
+    ? { y: 0, transition: { duration: dur(0.32), ease: [0.32, 0.72, 0, 1] } }
+    : { opacity: 1, scale: 1, y: 0, transition: { duration: dur(0.22), ease } };
+  const galleryExit = isMobile
+    ? { y: "100%", transition: { duration: dur(0.2), ease } }
+    : { opacity: 0, scale: 0.97, y: 8, transition: { duration: dur(0.16), ease } };
 
   return (
     <div className="flex flex-col items-center gap-12 py-12 sm:gap-20 sm:py-20 min-h-screen">
@@ -272,7 +308,7 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                 key={i}
                 drag={!prefersReducedMotion}
                 dragMomentum={false}
-                whileDrag={prefersReducedMotion ? {} : { scale: 1.05, zIndex: 10 }}
+                whileDrag={prefersReducedMotion ? {} : { scale: 1.08, zIndex: 10, filter: "brightness(1.08)", boxShadow: "0 20px 40px -8px rgb(0 0 0 / 0.4)" }}
                 initial={{ rotate: photo.rotate }}
                 style={{
                   position: "absolute",
@@ -308,7 +344,7 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
               <motion.div
                 className="fixed inset-0 z-40 bg-canvas/60 backdrop-blur-sm"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.15, ease: [0.23, 1, 0.32, 1] }}
                 onClick={() => setGalleryOpen(false)}
               />
               <div
@@ -316,37 +352,84 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                 onClick={() => setGalleryOpen(false)}
               >
                 <motion.div
-                  className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto"
-                  style={{ boxShadow: "var(--shadow-modal)" }}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 24 }}
-                  transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                  className="relative w-full sm:max-w-[920px] bg-surface rounded-t-2xl sm:rounded-2xl flex flex-col pointer-events-auto sm:max-h-none"
+                  style={{ ...(isMobile ? { maxHeight: "calc(100dvh - env(safe-area-inset-top, 0px) - 24px)" } : {}), boxShadow: "var(--shadow-modal)" }}
+                  initial={galleryInitial}
+                  animate={galleryAnimate}
+                  exit={galleryExit}
                   onClick={(e) => e.stopPropagation()}
+                  drag={isMobile ? "y" : false}
+                  dragControls={dragControls}
+                  dragListener={false}
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={{ top: 0, bottom: 0.8 }}
+                  dragMomentum={false}
+                  onDragEnd={(_, info) => {
+                    if (isMobile && (info.offset.y > 80 || info.velocity.y > 400)) setGalleryOpen(false);
+                  }}
                 >
-                  <div className="p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
-                    <GlassButton onClick={() => setGalleryOpen(false)} className="absolute top-4 right-4 w-10 h-10">
-                      <CloseIcon />
-                    </GlassButton>
-
-                    <p className="text-xl text-fg-primary pr-14">Gallery</p>
-
-                    <div style={{ columns: 2, columnGap: "12px" }}>
-                      {allPhotos.map((photo, i) => (
-                        <img
-                          key={i}
-                          src={photo.url}
-                          alt={photo.alt}
-                          className="w-full rounded-xl mb-3 break-inside-avoid"
-                          style={{ display: "block" }}
-                        />
-                      ))}
+                  <div
+                    className="sm:hidden shrink-0 sticky top-0 z-10 rounded-t-2xl relative"
+                    onPointerDown={startDragFromHandle}
+                    style={{
+                      touchAction: "none",
+                      background: "linear-gradient(to bottom, var(--color-surface) 40%, transparent 100%)",
+                      backdropFilter: "blur(12px)",
+                      WebkitBackdropFilter: "blur(12px)",
+                    }}
+                  >
+                    <div className="flex justify-center py-3">
+                      <svg width="32" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="4" rx="2" fill="var(--color-elevated)" />
+                      </svg>
                     </div>
+                    <div
+                      className="absolute inset-x-0 top-full h-8 pointer-events-none"
+                      style={{
+                        background: "linear-gradient(to bottom, var(--color-surface), transparent)",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                      }}
+                    />
+                  </div>
 
-                    <div className="hidden sm:flex justify-center">
-                      <GlassButton onClick={() => setGalleryOpen(false)} className="px-4 py-2.5 text-sm">
-                        Close
+                  <div
+                    ref={contentScrollRef}
+                    className="overflow-y-auto sm:overflow-visible flex-1"
+                    style={{ overscrollBehavior: "none" }}
+                    onPointerDown={startDragFromScroll}
+                  >
+                    <div className="relative p-5 sm:p-10 flex flex-col gap-5 sm:gap-10">
+                      <GlassButton onClick={() => setGalleryOpen(false)} className="absolute top-4 right-4 w-10 h-10">
+                        <CloseIcon />
                       </GlassButton>
+
+                      <div className="flex flex-col gap-1 pr-14">
+                        <p className="text-xl text-fg-primary">GPX Gallery</p>
+                        <p className="text-sm text-fg-muted">{allPhotos.length} moments frozen in time</p>
+                      </div>
+
+                      <div className="columns-1 sm:columns-2 gap-3">
+                        {allPhotos.map((photo, i) => (
+                          <img
+                            key={i}
+                            src={photo.url}
+                            alt={photo.alt}
+                            className="w-full rounded-xl mb-3 break-inside-avoid"
+                            style={{
+                              display: "block",
+                              animation: prefersReducedMotion ? undefined : "gallery-img-in 0.3s cubic-bezier(0.23,1,0.32,1) both",
+                              animationDelay: prefersReducedMotion ? undefined : `${i * 30}ms`,
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      <div className="hidden sm:flex justify-center">
+                        <GlassButton onClick={() => setGalleryOpen(false)} className="px-4 py-2.5 text-sm">
+                          Close
+                        </GlassButton>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { motion, AnimatePresence, useReducedMotion, useDragControls } from "framer-motion";
 import EntryCard from "./EntryCard";
 import GlassButton from "./GlassButton";
@@ -56,29 +57,7 @@ export default function PromptModal({ challenge, onClose }: PromptModalProps) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // iOS-compatible scroll lock
-  useEffect(() => {
-    if (!challenge) return;
-    if (isMobile) {
-      const scrollY = window.scrollY;
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        window.scrollTo(0, scrollY);
-      };
-    } else {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [challenge, isMobile]);
+  useScrollLock(!!challenge, isMobile);
 
   const podiumAuthors = new Set(challenge?.podium.map((p) => p.name));
   const podiumCards = challenge?.podium.map((p) => {

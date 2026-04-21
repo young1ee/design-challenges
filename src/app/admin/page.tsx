@@ -12,7 +12,7 @@ import { linkDesignerAccount } from "@/app/actions/link-designer";
 import GlassButton from "@/components/GlassButton";
 import Avatar from "@/components/Avatar";
 import { setAuthRole } from "@/app/actions/role";
-import { ChevronDown, CloseIcon, CheckIcon } from "@/components/Icons";
+import { ChevronDown, CloseIcon, CheckIcon, DragHandleIcon } from "@/components/Icons";
 import { updatePhotoOrder, getPhotoDescriptions, updatePhotoDescription } from "@/app/actions/settings";
 
 const inviteCallbackUrl = () =>
@@ -1003,8 +1003,8 @@ function EditDescriptionModal({ photo, current, onClose, onSaved }: {
   );
 }
 
-const PhotosTab = forwardRef<PhotosTabHandle, { seasons: DbSeason[] }>(
-function PhotosTab({ seasons: _seasons }, ref) {
+const PhotosTab = forwardRef<PhotosTabHandle, object>(
+function PhotosTab(_props, ref) {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDesc, setEditingDesc] = useState<GalleryPhoto | null>(null);
@@ -1056,6 +1056,7 @@ function PhotosTab({ seasons: _seasons }, ref) {
   }
 
   async function handleRemove(name: string) {
+    if (!window.confirm(`Remove "${name}" from the gallery?`)) return;
     const supabase = createClient();
     await supabase.storage.from("photos").remove([`overview/${name}`]);
     const newPhotos = photos.filter((p) => p.name !== name);
@@ -1083,10 +1084,15 @@ function PhotosTab({ seasons: _seasons }, ref) {
               key={photo.name}
               value={photo}
               onDragEnd={handleDragEnd}
-              className="flex items-start gap-3 p-5 rounded-2xl bg-surface cursor-grab active:cursor-grabbing"
+              whileDrag={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2)", zIndex: 10 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.25 }}
+              className="flex items-start gap-6 p-5 rounded-2xl bg-surface hover:bg-[var(--color-glass-hover)] transition-colors duration-200"
               style={{ boxShadow: "var(--shadow-default)" }}
             >
-              <img src={photo.url} alt={descriptions[photo.name] ?? ""} className="w-16 h-12 rounded-lg object-cover shrink-0" style={{ outline: "none" }} />
+              <div className="flex items-center gap-3 self-center shrink-0 text-fg-muted">
+                <DragHandleIcon size={16} />
+                <img src={photo.url} alt={descriptions[photo.name] ?? ""} draggable="false" className="w-20 aspect-[4/3] rounded-lg object-cover" style={{ outline: "none" }} />
+              </div>
               <div className="flex flex-col gap-3 min-w-0 flex-1">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-3">
@@ -1150,6 +1156,7 @@ export default function AdminPage() {
 
   const close = () => setModal(null);
   const effectiveIsAdmin = viewingAs ? viewingAs.role === "admin" : isAdmin;
+  const visibleTabs: Tab[] = effectiveIsAdmin ? ["challenges", "designers", "photos"] : ["challenges", "photos"];
 
   // Load auth user and match to designer profile
   useEffect(() => {
@@ -1248,8 +1255,8 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-4">
             <h1 className="text-3xl text-fg-primary">{greeting}{userName ? `, ${userName.split(" ")[0]}` : ""}</h1>
 
-            {effectiveIsAdmin && <div className="flex items-center p-1 rounded-full text-sm w-full sm:w-auto" style={{ border: "0.5px solid var(--color-line)" }}>
-              {(["challenges", "designers", "photos"] as Tab[]).map((tab) => (
+            <div className="flex items-center p-1 rounded-full text-sm w-full sm:w-auto" style={{ border: "0.5px solid var(--color-line)" }}>
+              {visibleTabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -1261,7 +1268,7 @@ export default function AdminPage() {
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
-            </div>}
+            </div>
           </div>
 
           {/* Challenges tab */}
@@ -1411,13 +1418,11 @@ export default function AdminPage() {
                   <p className="text-base text-fg-primary">Overview collage</p>
                   <p className="text-sm text-fg-muted">First 5 appear in the draggable collage. Drag to reorder.</p>
                 </div>
-                {effectiveIsAdmin && (
-                  <GlassButton className="shrink-0 px-4 py-2.5 text-sm" onClick={() => photosTabRef.current?.triggerAdd()}>
-                    Add image
-                  </GlassButton>
-                )}
+                <GlassButton className="shrink-0 px-4 py-2.5 text-sm" onClick={() => photosTabRef.current?.triggerAdd()}>
+                  Add image
+                </GlassButton>
               </div>
-              <PhotosTab ref={photosTabRef} seasons={seasons} />
+              <PhotosTab ref={photosTabRef} />
             </>
           )}
 
