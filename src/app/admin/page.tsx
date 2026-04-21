@@ -987,7 +987,7 @@ function EditDescriptionModal({ photo, current, onClose, onSaved }: {
         <textarea
           autoFocus
           rows={3}
-          placeholder="e.g. Team celebrating at the annual design challenge kick-off"
+          placeholder=""
           value={value}
           onChange={(e) => setValue(e.target.value)}
           className="w-full px-4 py-3 rounded-lg bg-canvas text-sm text-fg-primary placeholder:text-fg-muted resize-none outline-none transition-shadow duration-150"
