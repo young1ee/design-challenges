@@ -5,6 +5,7 @@ import {
   getSeasonLeaderboard,
   getActiveDesigners,
 } from "@/lib/db/queries";
+import { SEASON_EXCLUSIONS } from "@/lib/season-exclusions";
 
 export default async function HomePage() {
   const [mostRecentChallenge, previousChallenges, leaderboard, allDesigners] = await Promise.all([
@@ -96,7 +97,9 @@ export default async function HomePage() {
   const season4Start = new Date("2026-01-01");
   const designerMeta = new Map(allDesigners.map((d) => [d.name, d]));
 
+  const season4Excluded = SEASON_EXCLUSIONS[4];
   const filteredLeaderboard = leaderboard.filter((d) => {
+    if (season4Excluded?.has(d.slug)) return false;
     const meta = designerMeta.get(d.name);
     if (!meta) return true;
     const left = (meta as { left_at?: string | null }).left_at
@@ -107,6 +110,7 @@ export default async function HomePage() {
 
   // Eligible = all designers who were part of the group at season start
   const eligibleDesignerCount = allDesigners.filter((d) => {
+    if (season4Excluded?.has(d.slug)) return false;
     const left = (d as { left_at?: string | null }).left_at
       ? new Date((d as { left_at: string }).left_at)
       : null;

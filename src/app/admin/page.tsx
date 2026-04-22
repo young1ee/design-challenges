@@ -812,9 +812,9 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     }).eq("id", designer.id);
     if (err) { setSaving(false); setError(err.message); return; }
 
-    // Sync role to Supabase auth if user has logged in
+    // Sync role to Supabase auth — revoke access if marked inactive
     if (designer.auth_user_id) {
-      await setAuthRole(designer.auth_user_id, role);
+      await setAuthRole(designer.auth_user_id, active ? role : null);
     }
 
     setSaving(false);

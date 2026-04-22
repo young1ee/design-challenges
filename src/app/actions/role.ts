@@ -2,7 +2,7 @@
 
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 
-export async function setAuthRole(authUserId: string, role: "admin" | "member") {
+export async function setAuthRole(authUserId: string, role: "admin" | "member" | null) {
   const supabase = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!

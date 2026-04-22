@@ -113,6 +113,21 @@
   }
 }
 
+/* Gallery image caption — always visible on touch, hover-only on pointer devices */
+.gallery-caption {
+  opacity: 1;
+  transition: opacity 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gallery-caption {
+    opacity: 0;
+  }
+  .group:hover .gallery-caption {
+    opacity: 1;
+  }
+}
+
 /* Entry card prototype button — reacts to card hover */
 .entry-proto-btn {
   background-color: var(--color-surface);

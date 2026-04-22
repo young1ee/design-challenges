@@ -2,6 +2,7 @@ import OverviewClient from "./OverviewClient";
 import { getSeasons, getActiveDesigners, getSeasonLeaderboard } from "@/lib/db/queries";
 import { createClient } from "@/lib/supabase/server";
 import { getPhotoOrder, getPhotoDescriptions } from "@/app/actions/settings";
+import { isEligibleForSeason } from "@/lib/season-utils";
 
 export default async function OverviewPage() {
   const supabase = await createClient();
@@ -45,13 +46,14 @@ export default async function OverviewPage() {
 
   function isEligible(designer: typeof allDesigners[0], seasonIdx: number): boolean {
     const s = sortedSeasons[seasonIdx];
-    const seasonStart = new Date(s.starts_at);
-    const seasonEnd = seasonEndDate(seasonIdx);
-    const joined = new Date(designer.joined_at);
-    const left = (designer as { left_at?: string | null }).left_at
-      ? new Date((designer as { left_at: string }).left_at)
-      : null;
-    return joined <= seasonEnd && (!left || left >= seasonStart);
+    return isEligibleForSeason(
+      designer.slug,
+      designer.joined_at,
+      (designer as { left_at?: string | null }).left_at,
+      s.number,
+      new Date(s.starts_at),
+      seasonEndDate(seasonIdx),
+    );
   }
 
   // ─── Per-season trend data ────────────────────────────────────────────────

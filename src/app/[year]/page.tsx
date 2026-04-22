@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSeason, getSeasons, getSeasonLeaderboard, getActiveDesigners } from "@/lib/db/queries";
+import { isEligibleForSeason } from "@/lib/season-utils";
 import SeasonClient from "../archive/[season]/SeasonClient";
 
 // Map year string → season number by fetching all seasons
@@ -118,11 +119,7 @@ export default async function YearPage({
   const filteredLeaderboard = leaderboard.filter((d) => {
     const meta = designerMeta.get(d.name);
     if (!meta) return true;
-    const joined = new Date(meta.joined_at);
-    const left = (meta as { left_at?: string | null }).left_at
-      ? new Date((meta as { left_at: string }).left_at)
-      : null;
-    return joined <= seasonEnd && (!left || left >= seasonStart);
+    return isEligibleForSeason(d.slug, meta.joined_at, (meta as { left_at?: string | null }).left_at, seasonNumber, seasonStart, seasonEnd);
   });
 
   // ─── Map leaderboard ──────────────────────────────────────────────────────
@@ -137,13 +134,9 @@ export default async function YearPage({
   }));
 
   // ─── Eligible designers for completion rate ────────────────────────────────
-  const eligibleDesignerCount = allDesigners.filter((d) => {
-    const joined = new Date(d.joined_at);
-    const left = (d as { left_at?: string | null }).left_at
-      ? new Date((d as { left_at: string }).left_at)
-      : null;
-    return joined <= seasonEnd && (!left || left >= seasonStart);
-  }).length;
+  const eligibleDesignerCount = allDesigners.filter((d) =>
+    isEligibleForSeason(d.slug, d.joined_at, (d as { left_at?: string | null }).left_at, seasonNumber, seasonStart, seasonEnd)
+  ).length;
 
   // Champion = top of sorted leaderboard
   const champion = mappedLeaderboard[0] ?? null;

@@ -158,7 +158,8 @@ function DesignerCard({ designer }: { designer: DesignerItem }) {
         {designer.championYears.length > 0 && (
           <Tip content={`${designer.name} – the star that guided ${designer.championYears.join(" & ")}`}>
             <div
-              className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-default"
+              tabIndex={0}
+              className="absolute flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated cursor-default focus:outline-none"
               style={{ top: 8, right: 8 }}
             >
               <img src="/logo.svg" width="12" height="12" alt="" style={{ boxShadow: "none" }} />
@@ -420,7 +421,7 @@ export default function OverviewClient({ stats, designers, photos, allPhotos }: 
                               className="w-full block"
                             />
                             {photo.alt && (
-                              <div className="absolute inset-x-0 bottom-0 px-3 py-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              <div className="gallery-caption absolute inset-x-0 bottom-0 px-3 py-2.5"
                                 style={{ background: "linear-gradient(to top, rgba(2,6,23,0.85) 0%, transparent 100%)" }}
                               >
                                 <p className="text-xs text-fg-primary leading-snug">{photo.alt}</p>
