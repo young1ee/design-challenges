@@ -675,6 +675,7 @@ function EditEntryModal({ entry, onClose, onSaved }: {
   async function handleDelete() {
     if (!confirm("Delete this entry?")) return;
     const supabase = createClient();
+    await supabase.from("participations").delete().eq("challenge_id", challenge.id).eq("designer_id", entry.designer_id);
     await supabase.from("entries").delete().eq("id", entry.id);
     onSaved();
     onClose();
