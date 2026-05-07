@@ -17,6 +17,13 @@ export default function ConfirmPage() {
   const supabaseRef = useRef(createClient());
 
   useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    if (hash.get("error")) {
+      const desc = hash.get("error_description")?.replace(/\+/g, " ") ?? "Invalid or expired link.";
+      setError(desc);
+      return;
+    }
+
     const supabase = supabaseRef.current;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -62,8 +69,8 @@ export default function ConfirmPage() {
             >
               {!ready ? (
                 <div className="flex flex-col gap-1">
-                  <p className="text-base text-fg-primary">Verifying invitation…</p>
-                  <p className="text-sm text-fg-muted leading-5">Please wait while we confirm your link.</p>
+                  <p className="text-base text-fg-primary">{error ? "Link expired" : "Verifying invitation…"}</p>
+                  <p className="text-sm text-fg-muted leading-5">{error ?? "Please wait while we confirm your link."}</p>
                 </div>
               ) : done ? (
                 <div className="flex flex-col gap-3">
