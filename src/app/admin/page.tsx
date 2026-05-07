@@ -626,8 +626,9 @@ function SubmitEntryModal({ challenge, myDesignerId, onClose, onSaved }: {
   );
 }
 
-function EditEntryModal({ entry, onClose, onSaved }: {
+function EditEntryModal({ entry, challengeId, onClose, onSaved }: {
   entry: DbEntry;
+  challengeId: string;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -675,7 +676,7 @@ function EditEntryModal({ entry, onClose, onSaved }: {
   async function handleDelete() {
     if (!confirm("Delete this entry?")) return;
     const supabase = createClient();
-    await supabase.from("participations").delete().eq("challenge_id", challenge.id).eq("designer_id", entry.designer_id);
+    await supabase.from("participations").delete().eq("challenge_id", challengeId).eq("designer_id", entry.designer_id);
     await supabase.from("entries").delete().eq("id", entry.id);
     onSaved();
     onClose();
@@ -1496,7 +1497,7 @@ export default function AdminPage() {
           <SubmitEntryModal challenge={modal.challenge} myDesignerId={viewingAs?.id ?? myDesignerId} onClose={close} onSaved={loadChallenges} />
         )}
         {modal?.kind === "edit-entry" && (
-          <EditEntryModal entry={modal.entry} onClose={close} onSaved={loadChallenges} />
+          <EditEntryModal entry={modal.entry} challengeId={modal.challenge.id} onClose={close} onSaved={loadChallenges} />
         )}
         {modal?.kind === "set-prompt" && (
           <SetPromptModal challenge={modal.challenge} onClose={close} onSaved={loadChallenges} />
