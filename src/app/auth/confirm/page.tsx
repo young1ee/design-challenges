@@ -18,6 +18,7 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.slice(1));
+
     if (hash.get("error")) {
       const desc = hash.get("error_description")?.replace(/\+/g, " ") ?? "Invalid or expired link.";
       setError(desc);
@@ -30,9 +31,18 @@ export default function ConfirmPage() {
       if (session) { setReady(true); subscription.unsubscribe(); }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
-    });
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+
+    if (accessToken && refreshToken) {
+      // Supabase sent tokens in the hash (implicit/invite flow)
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ data: { session } }) => { if (session) setReady(true); });
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setReady(true);
+      });
+    }
 
     return () => subscription.unsubscribe();
   }, []);
