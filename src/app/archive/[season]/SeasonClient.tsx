@@ -149,11 +149,11 @@ function ChartTooltip(props: any) {
 // ─── Completion rate label ─────────────────────────────────────────────────────
 
 function completionRateText(rate: number): { headline: string; sub: string } {
-  if (rate === 100) return { headline: "Perfect", sub: "Everyone showed up every time." };
-  if (rate >= 80)   return { headline: "Great", sub: "Almost everyone is participating." };
-  if (rate >= 60)   return { headline: "Good", sub: "Most people are showing up." };
-  if (rate >= 40)   return { headline: "Average", sub: "Some people should get off the bench." };
-  return             { headline: "Poor", sub: "Someone needs a pep talk." };
+  if (rate === 100) return { headline: "Flawless", sub: "No excuses were made. A historic moment." };
+  if (rate >= 80)   return { headline: "Strong", sub: "Almost everyone showed up. One person was still adjusting their artboard." };
+  if (rate >= 60)   return { headline: "Decent", sub: "Most people are showing up. The Germans are still conducting a thorough investigation." };
+  if (rate >= 40)   return { headline: "Weak", sub: "Half the group is submitting. The other half is 'still iterating'." };
+  return             { headline: "Cooked", sub: "We checked — everyone still has Figma installed." };
 }
 
 // ─── Season 3+ layout ─────────────────────────────────────────────────────────
