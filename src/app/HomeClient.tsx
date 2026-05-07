@@ -441,8 +441,8 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                 <defs>
                   <path id="orbitPath" d="M 150,150 m -130,0 a 130,130 0 1,0 260,0 a 130,130 0 1,0 -260,0" />
                 </defs>
-                <text style={{ fontFamily: "var(--font-geist-mono), monospace", fill: "var(--color-accent)", letterSpacing: "0.11em", fontSize: "6px" }}>
-                  <textPath href="#orbitPath">
+                <text style={{ fontFamily: "var(--font-geist-mono), monospace", fill: "var(--color-accent)", fontSize: "6px" }}>
+                  <textPath href="#orbitPath" textLength="817" lengthAdjust="spacing">
                     {Array(6).fill("GLOBAL PRODUCT EXPERIENCE TEAM · ").join("")}
                   </textPath>
                 </text>
