@@ -33,7 +33,7 @@ export default function LoginPage() {
     setError(null);
     const supabase = createClient();
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/auth/confirm`,
+      redirectTo: `${window.location.origin}/auth/confirm`,
     });
     setResetting(false);
     setResetSent(true);

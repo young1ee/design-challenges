@@ -18,13 +18,27 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     const supabase = supabaseRef.current;
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
-    });
-    // Fallback: cookie may not be committed before getSession() fires on fast connections
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get("token_hash");
+    const otpType = params.get("type") as "invite" | "email" | "recovery" | null;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) { setReady(true); subscription.unsubscribe(); }
     });
+
+    if (tokenHash && (otpType === "invite" || otpType === "email" || otpType === "recovery")) {
+      // Sign out first so we don't accidentally update the wrong user's password
+      (async () => {
+        await supabase.auth.signOut();
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: otpType });
+        if (error) setError("Invalid or expired invitation link.");
+      })();
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setReady(true);
+      });
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 

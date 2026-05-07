@@ -16,7 +16,7 @@ import { ChevronDown, CloseIcon, CheckIcon, DragHandleIcon } from "@/components/
 import { updatePhotoOrder, getPhotoDescriptions, updatePhotoDescription } from "@/app/actions/settings";
 
 const inviteCallbackUrl = () =>
-  `${window.location.origin}/auth/callback?next=/auth/confirm`;
+  `${window.location.origin}/auth/confirm`;
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
@@ -34,6 +34,7 @@ interface DbDesigner {
   left_at: string | null;
   avatar_url: string | null;
   auth_user_id: string | null;
+  email: string | null;
 }
 
 async function uploadImage(bucket: string, path: string, file: File): Promise<string> {
@@ -312,6 +313,7 @@ function NewChallengeModal({ designers, seasons, onClose, onSaved }: {
 }
 
 const POSITION_POINTS: Record<number, number> = { 1: 10, 2: 6, 3: 4 };
+const PARTICIPATION_POINTS = 2;
 
 function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
   challenge: DbChallenge;
@@ -364,6 +366,21 @@ function EditChallengeModal({ challenge, designers, onClose, onSaved }: {
     if (toInsert.length > 0) {
       const { error: rErr } = await supabase.from("results").insert(toInsert);
       if (rErr) { setError(rErr.message); setSaving(false); return; }
+    }
+
+    // Award participation points to non-placed entries; remove from placed entries
+    const placedEntryIds = new Set(Object.values(placements).filter(Boolean));
+    const placedDesignerIds = challenge.entries.filter((e) => placedEntryIds.has(e.id)).map((e) => e.designer_id);
+    if (placedDesignerIds.length > 0) {
+      await supabase.from("participations").delete().eq("challenge_id", challenge.id).in("designer_id", placedDesignerIds);
+    }
+    const unplacedEntries = challenge.entries.filter((e) => !placedEntryIds.has(e.id));
+    if (unplacedEntries.length > 0) {
+      const { error: pErr } = await supabase.from("participations").upsert(
+        unplacedEntries.map((e) => ({ challenge_id: challenge.id, designer_id: e.designer_id, points_awarded: PARTICIPATION_POINTS })),
+        { onConflict: "challenge_id,designer_id" }
+      );
+      if (pErr) { setError(pErr.message); setSaving(false); return; }
     }
 
     setSaving(false);
@@ -464,6 +481,21 @@ function SetPromptModal({ challenge, onClose, onSaved }: { challenge: DbChalleng
     if (toInsert.length > 0) {
       const { error: rErr } = await supabase.from("results").insert(toInsert);
       if (rErr) { setError(rErr.message); setSaving(false); return; }
+    }
+
+    // Award participation points to non-placed entries; remove from placed entries
+    const placedEntryIds = new Set(Object.values(placements).filter(Boolean));
+    const placedDesignerIds = challenge.entries.filter((e) => placedEntryIds.has(e.id)).map((e) => e.designer_id);
+    if (placedDesignerIds.length > 0) {
+      await supabase.from("participations").delete().eq("challenge_id", challenge.id).in("designer_id", placedDesignerIds);
+    }
+    const unplacedEntries = challenge.entries.filter((e) => !placedEntryIds.has(e.id));
+    if (unplacedEntries.length > 0) {
+      const { error: pErr } = await supabase.from("participations").upsert(
+        unplacedEntries.map((e) => ({ challenge_id: challenge.id, designer_id: e.designer_id, points_awarded: PARTICIPATION_POINTS })),
+        { onConflict: "challenge_id,designer_id" }
+      );
+      if (pErr) { setError(pErr.message); setSaving(false); return; }
     }
 
     setSaving(false);
@@ -701,16 +733,19 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
         avatarUrl = await uploadImage("avatars", `${slug}.${avatarFile.name.split(".").pop()}`, avatarFile);
       } catch (e: unknown) { setError((e as Error).message); setSaving(false); return; }
     }
-    const { error: err } = await supabase.from("designers").insert({
+    const { data: inserted, error: err } = await supabase.from("designers").insert({
       name, slug, location: location || null, joined_at: joinedAt, is_active: true, avatar_url: avatarUrl,
-    });
+    }).select("id").single();
     if (err) { setSaving(false); setError(err.message); return; }
 
     // Send invite email if email provided
     if (email) {
       const confirmUrl = inviteCallbackUrl();
-      const { error: inviteErr } = await inviteDesigner(email, confirmUrl);
+      const { error: inviteErr, userId } = await inviteDesigner(email, confirmUrl);
       if (inviteErr) { setSaving(false); setError(`Designer saved, but invite failed: ${inviteErr}`); return; }
+      if (userId && inserted?.id) {
+        await supabase.from("designers").update({ auth_user_id: userId, email }).eq("id", inserted.id);
+      }
     }
 
     setSaving(false);
@@ -769,14 +804,12 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     if (!inviteEmail) return;
     setInviting(true);
     setInviteStatus(null);
-    const confirmUrl = `${window.location.origin}/auth/callback?next=/auth/confirm`;
-    const { error, userId } = await inviteDesigner(inviteEmail, confirmUrl, isAdminRole ? "admin" : "member");
+    const { error, userId } = await inviteDesigner(inviteEmail, inviteCallbackUrl(), isAdminRole ? "admin" : "member");
     setInviting(false);
     if (error) { setInviteStatus({ ok: false, msg: error }); return; }
-    // Save auth_user_id back to designer row
     if (userId) {
       const supabase = createClient();
-      await supabase.from("designers").update({ auth_user_id: userId }).eq("id", designer.id);
+      await supabase.from("designers").update({ auth_user_id: userId, email: inviteEmail }).eq("id", designer.id);
     }
     setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
   }
@@ -1235,7 +1268,7 @@ export default function AdminPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("designers")
-      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url, auth_user_id")
+      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url, auth_user_id, email")
       .order("joined_at", { ascending: true });
     setLoadingDesigners(false);
     if (data) setDesigners(data);
@@ -1401,6 +1434,7 @@ export default function AdminPage() {
                           <p className={`text-base ${designer.is_active ? "text-fg-primary" : "text-fg-secondary"}`}>{designer.name}</p>
                           <p className="text-sm text-fg-muted">
                             {[
+                              designer.email,
                               designer.location,
                               designer.is_active
                                 ? `Active since ${new Date(designer.joined_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
