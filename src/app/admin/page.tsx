@@ -16,7 +16,7 @@ import { ChevronDown, CloseIcon, CheckIcon, DragHandleIcon } from "@/components/
 import { updatePhotoOrder, getPhotoDescriptions, updatePhotoDescription } from "@/app/actions/settings";
 
 const inviteCallbackUrl = () =>
-  `${window.location.origin}/auth/confirm`;
+  `${window.location.origin}/auth/callback?next=/auth/confirm`;
 
 const greetings = ["Hi", "Hello", "Moi", "Tere", "Hallo", "Merhaba", "Ahoj", "Xin chào", "Hei"];
 const years = [2026, 2025, 2024, 2023];
