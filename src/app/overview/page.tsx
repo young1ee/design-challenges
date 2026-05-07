@@ -184,9 +184,9 @@ export default async function OverviewPage() {
   const mappedDesigners = allDesigners.map((d) => {
     const leftAt = (d as { left_at?: string | null }).left_at;
     const dateLabel = leftAt
-      ? `Last seen ${new Date(leftAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`
-      : `Since ${new Date(d.joined_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`;
-    const subtitle = [d.location, dateLabel].filter(Boolean).join(" · ");
+      ? `Last seen ${new Date(leftAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
+      : `Since ${new Date(d.joined_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`;
+    const subtitle = [!leftAt && d.location, dateLabel].filter(Boolean).join(" · ");
     const stats = allTimeStats.get(d.slug) ?? { entries: 0, wins: 0 };
     const eligible = eligibleChallengesBySlug.get(d.slug) ?? 0;
     const participationPct = eligible > 0

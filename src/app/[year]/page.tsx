@@ -31,7 +31,7 @@ export default async function YearPage({
 
   // ─── Date range ───────────────────────────────────────────────────────────
   const fmt = (d: string) =>
-    new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+    new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
   const dateRange = seasonData.starts_at
     ? `${fmt(seasonData.starts_at)}${seasonData.ends_at ? ` – ${fmt(seasonData.ends_at)}` : " – present"}`
     : "";
