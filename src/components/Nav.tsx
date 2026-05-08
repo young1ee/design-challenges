@@ -25,21 +25,27 @@ export default function Nav() {
   useEffect(() => {
     const supabase = createClient();
 
-    async function applySession(email: string | undefined) {
-      if (!email) { setUser(null); return; }
-      const slug = email.split("@")[0].split(".")[0];
-      const name = slug.replace(/\b\w/g, (c) => c.toUpperCase());
-      const initials = name.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase();
-      const { data } = await supabase.from("designers").select("avatar_url").eq("slug", slug).maybeSingle();
-      setUser({ name, initials, avatarUrl: data?.avatar_url ?? null });
+    async function applySession(session: { user: { id: string; email?: string } } | null) {
+      if (!session?.user) { setUser(null); return; }
+      const { id, email } = session.user;
+      const { data } = await supabase.from("designers").select("name, avatar_url").eq("auth_user_id", id).maybeSingle();
+      if (data) {
+        const initials = data.name.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase();
+        setUser({ name: data.name.split(" ")[0], initials, avatarUrl: data.avatar_url ?? null });
+      } else {
+        const slug = (email ?? "").split("@")[0].split(".")[0];
+        const name = slug.replace(/\b\w/g, (c) => c.toUpperCase());
+        const initials = name[0]?.toUpperCase() ?? "";
+        setUser({ name, initials, avatarUrl: null });
+      }
     }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      applySession(session?.user?.email);
+      applySession(session);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      applySession(session?.user?.email);
+      applySession(session);
     });
 
     return () => subscription.unsubscribe();
