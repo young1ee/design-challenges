@@ -187,7 +187,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
     const natural = (tp as SVGTextContentElement).getComputedTextLength();
     const N = tp.textContent?.length ?? 1;
     const circumference = 2 * Math.PI * 130;
-    setOrbitLetterSpacing((circumference - natural) / N);
+    setOrbitLetterSpacing((circumference - natural) / (N - 1));
   }, []);
 
   const selectedChallenge = previousChallenges.find((c) => c.id === selectedId) ?? null;
