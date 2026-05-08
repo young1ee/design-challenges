@@ -71,7 +71,7 @@ function AnimatedStatValue({ value }: { value: string }) {
   }, [inView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <p ref={ref} className="text-5xl text-fg-primary leading-none tabular-nums">
+    <p ref={ref} className="text-5xl text-fg-primary leading-none">
       {display}
     </p>
   );
