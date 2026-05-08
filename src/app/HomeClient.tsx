@@ -306,7 +306,6 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                   prompt={challenge.prompt}
                   winner={challenge.winner}
                   winnerAvatarUrl={challenge.winnerAvatarUrl}
-                  entries={challenge.entries}
                   onOpen={() => setSelectedId(challenge.id)}
                 />
               ))}

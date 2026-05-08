@@ -276,7 +276,6 @@ function Season3Layout({
                 prompt={challenge.prompt}
                 winner={challenge.winner}
                 winnerAvatarUrl={challenge.winnerAvatarUrl}
-                entries={challenge.entries}
                 onOpen={() => setSelectedId(challenge.id)}
               />
             ))}
@@ -487,7 +486,6 @@ function OldSeasonLayout({
               prompt={featuredChallenge.prompt}
               winner={featuredChallenge.winner}
               winnerAvatarUrl={featuredChallenge.winnerAvatarUrl}
-              entries={featuredChallenge.entries}
               onOpen={() => setSelectedId(featuredChallenge.id)}
             />
           )}

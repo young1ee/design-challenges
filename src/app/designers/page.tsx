@@ -22,7 +22,7 @@ function DesignerCard({ designer, rank }: {
   return (
     <Link
       href={`/designers/${designer.slug}`}
-      className="group flex flex-col gap-6 p-6 rounded-2xl bg-surface hover:bg-elevated transition-[transform,background-color] duration-150 active:scale-[0.99] cursor-pointer"
+      className="group flex flex-col gap-6 p-6 rounded-2xl bg-surface hover:bg-elevated transition-[transform,background-color] duration-150 active:scale-[0.96] cursor-pointer"
       style={{ boxShadow: "var(--shadow-default)" }}
     >
       <div className="flex items-start justify-between">

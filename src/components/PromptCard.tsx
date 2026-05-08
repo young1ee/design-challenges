@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Avatar from "./Avatar";
+import { useHoverSupported } from "@/hooks/useHoverSupported";
 
 interface PromptCardProps {
   id: string;
@@ -9,7 +10,6 @@ interface PromptCardProps {
   prompt: string;
   winner: string;
   winnerAvatarUrl?: string;
-  entries?: { author: string; authorAvatarUrl?: string }[];
   onOpen: () => void;
 }
 
@@ -22,6 +22,7 @@ export default function PromptCard({
   onOpen,
 }: PromptCardProps) {
   const reduceMotion = useReducedMotion();
+  const hoverSupported = useHoverSupported();
 
   return (
     <motion.div
@@ -29,14 +30,13 @@ export default function PromptCard({
       onClick={onOpen}
       className="group prompt-card flex flex-col gap-5 h-[220px] w-full p-5 rounded-2xl bg-surface cursor-pointer"
       style={{ boxShadow: "var(--shadow-default)" }}
-      whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+      whileHover={hoverSupported && !reduceMotion ? { scale: 1.02 } : undefined}
       whileTap={reduceMotion ? undefined : { scale: 0.98 }}
       transition={{
         layout: { type: "spring", duration: 0.4, bounce: reduceMotion ? 0 : 0.1 },
         scale: { type: "spring", duration: 0.2, bounce: 0 },
       }}
     >
-      {/* Date + Prompt */}
       <div className="flex-1 flex flex-col gap-1 min-h-0">
         <p className="text-sm text-fg-muted">{date}</p>
         <p className="text-base text-fg-primary leading-6 line-clamp-4 text-pretty">
@@ -44,9 +44,7 @@ export default function PromptCard({
         </p>
       </div>
 
-      {/* Footer */}
       <div className="flex items-end gap-3">
-        {/* Winner */}
         <div className="flex-1 flex flex-col gap-1">
           <p className="text-sm text-fg-muted">Winner</p>
           <div className="flex items-center gap-2">
@@ -55,7 +53,6 @@ export default function PromptCard({
           </div>
         </div>
 
-        {/* See more button */}
         <button
           onClick={(e) => {
             e.stopPropagation();

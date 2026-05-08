@@ -4,7 +4,7 @@ import * as RadixTooltip from "@radix-ui/react-tooltip";
 
 export function TooltipProvider({ children }: { children: React.ReactNode }) {
   return (
-    <RadixTooltip.Provider delayDuration={300} skipDelayDuration={100}>
+    <RadixTooltip.Provider delayDuration={300} skipDelayDuration={300}>
       {children}
     </RadixTooltip.Provider>
   );
