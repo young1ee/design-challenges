@@ -1218,8 +1218,6 @@ export default function AdminPage() {
     const supabase = createClient();
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const email = session?.user?.email ?? "";
-      const name = email.split("@")[0].split(".")[0].replace(/\b\w/g, (c) => c.toUpperCase());
-      setUserName(name);
       // Fetch role from server to reflect changes immediately without re-login
       const roleRes = await fetch("/api/me/role");
       if (roleRes.ok) {
@@ -1228,10 +1226,20 @@ export default function AdminPage() {
       } else {
         setIsAdmin(session?.user?.app_metadata?.role === "admin");
       }
-      // Match to designer by slug (first part of email before @ or .)
-      const slug = email.split("@")[0].split(".")[0].toLowerCase();
-      const { data } = await supabase.from("designers").select("id, slug").eq("slug", slug).maybeSingle();
-      if (data) { setMyDesignerId(data.id); setMyDesignerSlug(slug); }
+      // Match to designer by auth_user_id (reliable) with email slug as fallback
+      if (session?.user?.id) {
+        const { data } = await supabase.from("designers").select("id, slug, name").eq("auth_user_id", session.user.id).maybeSingle();
+        if (data) {
+          setUserName(data.name.split(" ")[0]);
+          setMyDesignerId(data.id);
+          setMyDesignerSlug(data.slug);
+        } else {
+          const slug = email.split("@")[0].split(".")[0].toLowerCase();
+          const { data: bySlug } = await supabase.from("designers").select("id, slug, name").eq("slug", slug).maybeSingle();
+          if (bySlug) { setUserName(bySlug.name.split(" ")[0]); setMyDesignerId(bySlug.id); setMyDesignerSlug(bySlug.slug); }
+          else setUserName(email.split("@")[0].split(".")[0].replace(/\b\w/g, (c) => c.toUpperCase()));
+        }
+      }
       // Auto-link auth account to designer row if not yet set
       if (session) linkDesignerAccount();
     });
