@@ -453,7 +453,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                 </defs>
                 <text style={{ fontFamily: "var(--font-geist-mono), monospace", fill: "var(--color-accent)", fontSize: "6px", letterSpacing: `${orbitLetterSpacing}px` }}>
                   <textPath ref={orbitTextRef} href="#orbitPath">
-                    {Array(6).fill("GLOBAL PRODUCT EXPERIENCE TEAM·").join("")}
+                    {Array(6).fill("GLOBAL PRODUCT EXPERIENCE TEAM · ").join("")}
                   </textPath>
                 </text>
               </svg>
