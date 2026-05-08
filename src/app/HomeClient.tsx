@@ -161,8 +161,6 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
   const [challengeExpired, setChallengeExpired] = useState(false);
   const globeWrapRef = useRef<HTMLDivElement>(null);
   const [globeScale, setGlobeScale] = useState(1);
-  const orbitTextRef = useRef<SVGTextPathElement>(null);
-  const [orbitLetterSpacing, setOrbitLetterSpacing] = useState(0);
 
   const progressRef = useRef<HTMLDivElement>(null);
   const progressInView = useInView(progressRef, { once: true });
@@ -181,14 +179,6 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
     return () => ro.disconnect();
   }, []);
 
-  useEffect(() => {
-    const tp = orbitTextRef.current;
-    if (!tp) return;
-    const natural = (tp as SVGTextContentElement).getComputedTextLength();
-    const N = tp.textContent?.length ?? 1;
-    const circumference = 2 * Math.PI * 130;
-    setOrbitLetterSpacing((circumference - natural) / (N - 1));
-  }, []);
 
   const selectedChallenge = previousChallenges.find((c) => c.id === selectedId) ?? null;
 
@@ -451,8 +441,8 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
                 <defs>
                   <path id="orbitPath" d="M 150,150 m -130,0 a 130,130 0 1,0 260,0 a 130,130 0 1,0 -260,0" />
                 </defs>
-                <text style={{ fontFamily: "var(--font-geist-mono), monospace", fill: "var(--color-accent)", fontSize: "6px", letterSpacing: `${orbitLetterSpacing}px` }}>
-                  <textPath ref={orbitTextRef} href="#orbitPath">
+                <text style={{ fontFamily: "var(--font-geist-mono), monospace", fill: "var(--color-accent)", fontSize: "6px" }}>
+                  <textPath href="#orbitPath" textLength={2 * Math.PI * 130} lengthAdjust="spacing">
                     {Array(6).fill("GLOBAL PRODUCT EXPERIENCE TEAM · ").join("")}
                   </textPath>
                 </text>
