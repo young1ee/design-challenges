@@ -145,7 +145,7 @@ export default function Nav() {
           </Link>
 
           {/* User dropdown or Log in */}
-          {pathname === "/auth/confirm" ? null : user ? (
+          {pathname !== "/auth/confirm" && (user ? (
             <DropdownMenu.Root onOpenChange={(open) => { if (!open) setHoveredUser(null); }}>
               <DropdownMenu.Trigger asChild>
                 <button className="flex items-center gap-1 sm:gap-2 text-sm text-fg-secondary hover:text-fg-primary transition-[transform,color] duration-150 active:scale-[0.97] cursor-pointer outline-none">
@@ -217,7 +217,7 @@ export default function Nav() {
             <Link href="/login" className="text-sm text-fg-secondary hover:text-fg-primary transition-colors duration-150">
               Log in
             </Link>
-          ) : null}
+          ))}
         </div>
       </nav>
     </div>
