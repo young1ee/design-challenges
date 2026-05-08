@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import Particles from "@/components/Particles";
 import PageTransition from "@/components/PageTransition";
@@ -12,8 +13,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [resetSent, setResetSent] = useState(false);
-  const [resetting, setResetting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,18 +24,6 @@ export default function LoginPage() {
     setLoading(false);
     if (error) setError(error.message);
     else window.location.href = "/admin";
-  }
-
-  async function handleForgot() {
-    if (!email) { setError("Enter your email first"); return; }
-    setResetting(true);
-    setError(null);
-    const supabase = createClient();
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/confirm`,
-    });
-    setResetting(false);
-    setResetSent(true);
   }
 
   return (
@@ -58,15 +45,11 @@ export default function LoginPage() {
               style={{ boxShadow: "var(--shadow-default)", zIndex: 1 }}
             >
               <div className="flex flex-col gap-1">
-                <p className="text-base text-fg-primary">{resetSent ? "Check your inbox" : "Log in"}</p>
-                <p className="text-sm text-fg-muted leading-5">
-                  {resetSent
-                    ? <>Reset link sent to <span className="text-fg-secondary">{email}</span>. Check your inbox.</>
-                    : "Enter your credentials to access the dashboard."}
-                </p>
+                <p className="text-base text-fg-primary">Log in</p>
+                <p className="text-sm text-fg-muted leading-5">Enter your credentials to access the dashboard.</p>
               </div>
 
-              {!resetSent && <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <FormInput
                   type="email"
                   value={email}
@@ -90,24 +73,13 @@ export default function LoginPage() {
                 >
                   {loading ? "Logging in…" : "Log in"}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleForgot}
-                  disabled={resetting}
-                  className="text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 transition-colors duration-150 text-left w-fit cursor-pointer disabled:opacity-40"
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 transition-colors duration-150 w-fit"
                 >
-                  {resetting ? "Sending…" : "Forgot password?"}
-                </button>
-              </form>}
-
-              {resetSent && (
-                <button
-                  onClick={() => { setResetSent(false); setPassword(""); }}
-                  className="text-sm text-fg-secondary hover:text-fg-primary underline underline-offset-2 transition-colors duration-150 text-left w-fit cursor-pointer"
-                >
-                  Back to log in
-                </button>
-              )}
+                  Forgot password?
+                </Link>
+              </form>
             </div>
           </div>
         </PageTransition>
