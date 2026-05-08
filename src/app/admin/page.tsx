@@ -34,7 +34,6 @@ interface DbDesigner {
   left_at: string | null;
   avatar_url: string | null;
   auth_user_id: string | null;
-  email: string | null;
 }
 
 async function uploadImage(bucket: string, path: string, file: File): Promise<string> {
@@ -746,7 +745,7 @@ function NewDesignerModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
       const { error: inviteErr, userId } = await inviteDesigner(email, confirmUrl);
       if (inviteErr) { setSaving(false); setError(`Designer saved, but invite failed: ${inviteErr}`); return; }
       if (userId && inserted?.id) {
-        await supabase.from("designers").update({ auth_user_id: userId, email }).eq("id", inserted.id);
+        await supabase.from("designers").update({ auth_user_id: userId }).eq("id", inserted.id);
       }
     }
 
@@ -811,7 +810,7 @@ function EditDesignerModal({ designer, isSelf, onClose, onSaved }: {
     if (error) { setInviteStatus({ ok: false, msg: error }); return; }
     if (userId) {
       const supabase = createClient();
-      await supabase.from("designers").update({ auth_user_id: userId, email: inviteEmail }).eq("id", designer.id);
+      await supabase.from("designers").update({ auth_user_id: userId }).eq("id", designer.id);
     }
     setInviteStatus({ ok: true, msg: `Invite sent to ${inviteEmail}` });
   }
@@ -1278,7 +1277,7 @@ export default function AdminPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("designers")
-      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url, auth_user_id, email")
+      .select("id, slug, name, role, location, joined_at, is_active, left_at, avatar_url, auth_user_id")
       .order("joined_at", { ascending: true });
     setLoadingDesigners(false);
     if (data) setDesigners(data);
@@ -1444,7 +1443,6 @@ export default function AdminPage() {
                           <p className={`text-base ${designer.is_active ? "text-fg-primary" : "text-fg-secondary"}`}>{designer.name}</p>
                           <p className="text-sm text-fg-muted">
                             {[
-                              designer.email,
                               designer.location,
                               designer.is_active
                                 ? `Active since ${new Date(designer.joined_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
