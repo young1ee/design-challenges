@@ -182,6 +182,11 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
 
   const selectedChallenge = previousChallenges.find((c) => c.id === selectedId) ?? null;
 
+  const numPromptWords = currentChallenge?.prompt.split(" ").length ?? 0;
+  const contentRevealDelay = currentChallenge
+    ? `${(0.15 + (numPromptWords - 1) * 0.08 + 0.6 + 0.2).toFixed(2)}s`
+    : "1.1s";
+
   // ─── Derived stats ────────────────────────────────────────────────────────
   const totalPoints = leaderboard.reduce((sum, d) => sum + d.points, 0);
   const totalEntries = leaderboard.reduce((sum, d) => sum + d.entries, 0);
@@ -280,7 +285,7 @@ export default function HomeClient({ currentChallenge, previousChallenges, leade
         </section>
 
         {/* Everything below the hero reveals after the hero animation completes */}
-        <div className="flex flex-col gap-20" style={{ animation: "content-reveal 1s var(--ease-out) both", animationDelay: "1.8s" }}>
+        <div className="flex flex-col gap-20" style={{ animation: "content-reveal 0.7s var(--ease-out) both", animationDelay: contentRevealDelay }}>
 
         {/* Previous challenges */}
         {previousChallenges.length > 0 && (
