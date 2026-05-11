@@ -8,7 +8,6 @@ const LOCATIONS = [
   { id: "finland",  text: "FINLAND",  location: [61.9241,  25.7482] as [number, number] },
   { id: "estonia",  text: "ESTONIA",  location: [58.5953,  25.0136] as [number, number] },
   { id: "germany",  text: "GERMANY",  location: [51.1657,  10.4515] as [number, number] },
-  { id: "oman",     text: "OMAN",     location: [21.4735,  55.9754] as [number, number] },
 ];
 
 
